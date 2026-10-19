@@ -1,22 +1,36 @@
-FROM python:3.11-slim
+# Используем официальный образ PHP 8.2 с FPM на базе Alpine для минимального размера
+FROM php:8.4-fpm-alpine
 
-WORKDIR /app
+# Устанавливаем рабочую директорию
+WORKDIR /var/www/html
 
-# Отключаем создание pyc файлов и включение буферизации вывода
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+# Устанавливаем системные зависимости и расширения PHP, необходимые для Laravel
+RUN apk add --no-cache \
+    build-base \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    oniguruma-dev \
+    postgresql-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring zip exif pcntl gd bcmath
 
-# Копируем зависимости
-COPY requirements.txt .
+# Устанавливаем Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+# Копируем существующие файлы проекта
+COPY . /var/www/html
 
-# Копируем исходный код backend
-COPY . .
+# Настраиваем права доступа для директорий storage и bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Открываем порт FastAPI
-EXPOSE 8000
+# Открываем порт 9000 для PHP-FPM
+EXPOSE 9000
 
-# Запускаем uvicorn (предполагается, что экземпляр FastAPI в main.py с именем app)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["php-fpm"]
