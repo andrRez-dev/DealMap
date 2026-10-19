@@ -33,10 +33,10 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: angular_frontend
+    container_name: react_frontend
     restart: always
     ports:
-      - "4200:4200"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules

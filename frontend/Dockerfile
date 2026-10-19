@@ -1,11 +1,18 @@
-FROM node:alpine
+FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . /usr/src/app
+# Копируем файлы манифестов пакетов
+COPY package*.json ./
 
-RUN npm install -g @angular/cli
-
+# Устанавливаем зависимости
 RUN npm install
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+# Копируем остальные файлы frontend
+COPY . .
+
+# Открываем порт Vite
+EXPOSE 5173
+
+# Запускаем в режиме разработки с флагом --host, чтобы сервер пробрасывался наружу контейнера
+CMD ["npm", "run", "dev", "--", "--host"]
