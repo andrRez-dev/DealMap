@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ApiClient;
 use App\Models\User;
 
 return [
@@ -38,9 +39,9 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'api_clients',
         ],
     ],
 
@@ -62,15 +63,15 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'api_clients' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'model' => env('AUTH_MODEL', ApiClient::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
     ],
 
     /*
