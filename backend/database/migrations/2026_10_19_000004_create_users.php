@@ -12,9 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('api_clients', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->string('name', 150); // Например: "Парсер Lidl", "Мобильное приложение", "Партнер X"
+            $table->string('name', 150);
             $table->string('email', 255)->unique();
             $table->string('password_hash', 255);
             $table->boolean('is_active')->default(true);

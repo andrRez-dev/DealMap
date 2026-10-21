@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
 
             $table->foreignUuid('offer_id')->constrained('offers')->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained('api_clients')->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
 
             // Встроенный метод Laravel enum
             $table->enum('vote', ['works', 'expired']);

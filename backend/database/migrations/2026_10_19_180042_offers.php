@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->foreignUuid('product_id')->constrained('products')->cascadeOnDelete();
             $table->foreignUuid('store_id')->constrained('stores')->cascadeOnDelete();
-            $table->foreignUuid('user_id')->constrained('api_clients')->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
 
             $table->decimal('original_price', 10, 2)->nullable();
             $table->decimal('discounted_price', 10, 2);
