@@ -37,7 +37,7 @@ class UsersController extends Controller
     {
         $responseCode = 200;
         $validated = $request->validate([
-            'name' => 'required|alpha',
+            'name' => 'required|string|min:3|max:255',
             'email' => 'required|email',
             'password' => 'required|min:4|max:255'
         ]);
@@ -82,7 +82,7 @@ class UsersController extends Controller
         $responseCode = 200;
 
         $validated = $request->validate([
-            'login' => 'required|alpha',
+            'login' => 'required|string|min:3|max:255',
             'password' => 'required|min:4|max:255'
         ]);
         try {
