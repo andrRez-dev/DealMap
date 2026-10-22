@@ -1,7 +1,60 @@
+import { useState, type SubmitEvent } from "react";
 import RegisterImg from "../components/images/registerImg.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const api = import.meta.env.VITE_API_URL;
+  const token = import.meta.env.VITE_FRONTEND_TOKEN;
+
+  async function register(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+
+    if (!api || !token) {
+      setError("error with the api url or token");
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+    const body = {
+      name: form.get("name"),
+      email: form.get("email"),
+      password: form.get("password"),
+    };
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${api}/api/user`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Error with registration");
+        return;
+      }
+
+      localStorage.setItem("clientToken", data.client_token);
+      navigate("/");
+    } catch {
+      setError("Did not succeed to connect with the server");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex items-center justify-center w-full h-full bg-green-950">
       <div className="flex flex-row justify-between w-220 h-130 rounded-xl">
@@ -21,12 +74,12 @@ export default function Register() {
             Enter your information below
           </p>
 
-          <form className="flex flex-col mt-9">
+          <form className="flex flex-col mt-9" onSubmit={register}>
             <label htmlFor="fullname">Full Name</label>
             <input
               type="text"
               id="fullname"
-              name="fullnam"
+              name="name"
               placeholder="Name Surname"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
             />
@@ -54,11 +107,14 @@ export default function Register() {
             />
             <button
               type="submit"
+              disabled={loading}
               className="bg-white text-black mt-5 p-1 rounded-md hover:bg-gray-300 cursor-pointer transition-all font-medium"
             >
-              Create
+              {loading ? "Creating an account" : "Create"}
             </button>
           </form>
+
+          {error && <p role="alert">{error}</p>}
 
           <p className="text-sm text-gray-300 mt-22">
             Already have an account?{" "}
