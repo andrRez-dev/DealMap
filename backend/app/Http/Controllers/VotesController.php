@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offer;
+use App\Support\ClientTokenResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Support\ClientTokenResolver;
 
 class VotesController extends Controller
 {
@@ -18,61 +18,45 @@ class VotesController extends Controller
         $validated = $request->validate([
             'vote' => ['required', 'in:works,expired'],
         ]);
-        $tokenResolver->requireFrontendClient($request);
-        $user = $tokenResolver->resolveUser($request, required: true);
+        $user = $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
 
         $result = DB::transaction(function () use ($offer, $validated, $user) {
-            $offerRecord = DB::table('offers')
-                ->where('id', $offer)
+            $offerRecord = Offer::query()
                 ->lockForUpdate()
-                ->first();
+                ->find($offer);
 
             if ($offerRecord === null) {
                 abort(404, 'Offer not found.');
             }
 
-            $existingVote = DB::table('votes')
-                ->where('offer_id', $offer)
+            $existingVote = $offerRecord->votes()
                 ->where('user_id', $user->id)
-                ->lockForUpdate()
                 ->first();
 
             if ($existingVote === null) {
-                DB::table('votes')->insert([
-                    'id' => (string) Str::uuid(),
-                    'offer_id' => $offer,
+                $offerRecord->votes()->create([
                     'user_id' => $user->id,
                     'vote' => $validated['vote'],
-                    'created_at' => now(),
                 ]);
             } else {
-                DB::table('votes')
-                    ->where('id', $existingVote->id)
-                    ->update([
-                        'vote' => $validated['vote'],
-                        'created_at' => now(),
-                    ]);
+                $existingVote->vote = $validated['vote'];
+                $existingVote->created_at = now();
+                $existingVote->save();
             }
 
-            $expiredVotes = DB::table('votes')
-                ->where('offer_id', $offer)
+            $expiredVotes = $offerRecord->votes()
                 ->where('vote', 'expired')
                 ->count();
-            $hasNotExpired = $offerRecord->expires_at === null
-                || $offerRecord->expires_at >= today()->toDateString();
-            $isActive = $expiredVotes < 3 && $hasNotExpired;
-
-            DB::table('offers')
-                ->where('id', $offer)
-                ->update([
-                    'is_active' => $isActive,
-                    'updated_at' => now(),
-                ]);
-
-            $worksVotes = DB::table('votes')
-                ->where('offer_id', $offer)
+            $worksVotes = $offerRecord->votes()
                 ->where('vote', 'works')
                 ->count();
+            $hasNotExpired = $offerRecord->expires_at === null
+                || ! $offerRecord->expires_at->lt(today());
+            $isActive = $expiredVotes < 3 && $hasNotExpired;
+
+            $offerRecord->is_active = $isActive;
+            $offerRecord->save();
 
             return [
                 'works' => $worksVotes,

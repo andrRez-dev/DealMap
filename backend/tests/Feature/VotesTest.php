@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\ApiClient;
+use App\Models\Offer;
+use App\Models\Product;
+use App\Models\Store;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Tests\TestCase;
@@ -57,6 +60,7 @@ class VotesTest extends TestCase
             $table->uuid('id')->primary();
             $table->uuid('product_id');
             $table->uuid('store_id');
+            $table->uuid('user_id');
             $table->decimal('original_price', 10, 2)->nullable();
             $table->decimal('discounted_price', 10, 2)->default(1);
             $table->smallInteger('discount_percent')->nullable();
@@ -72,6 +76,7 @@ class VotesTest extends TestCase
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('unit')->default('kg');
+            $table->timestamps();
         });
 
         Schema::create('stores', function (Blueprint $table): void {
@@ -82,6 +87,7 @@ class VotesTest extends TestCase
             $table->string('city')->default('Klaipėda');
             $table->decimal('latitude', 10, 7)->default(55.7);
             $table->decimal('longitude', 10, 7)->default(21.1);
+            $table->timestamps();
         });
 
         Schema::create('votes', function (Blueprint $table): void {
@@ -158,16 +164,13 @@ class VotesTest extends TestCase
         $users = collect(range(1, 3))->map(fn () => $this->createUser());
 
         foreach ($users as $user) {
-            DB::table('votes')->insert([
-                'id' => (string) Str::uuid(),
-                'offer_id' => $offerId,
+            Offer::findOrFail($offerId)->votes()->create([
                 'user_id' => $user->id,
                 'vote' => 'expired',
-                'created_at' => now(),
             ]);
         }
 
-        DB::table('offers')->where('id', $offerId)->update(['is_active' => false]);
+        Offer::findOrFail($offerId)->update(['is_active' => false]);
 
         $this->submitVote($users->first(), $offerId, 'works')
             ->assertOk()
@@ -186,12 +189,9 @@ class VotesTest extends TestCase
         $users = collect(range(1, 3))->map(fn () => $this->createUser());
 
         foreach ($users as $user) {
-            DB::table('votes')->insert([
-                'id' => (string) Str::uuid(),
-                'offer_id' => $offerId,
+            Offer::findOrFail($offerId)->votes()->create([
                 'user_id' => $user->id,
                 'vote' => 'expired',
-                'created_at' => now(),
             ]);
         }
 
@@ -280,18 +280,12 @@ class VotesTest extends TestCase
 
     private function createOffer(?string $expiresAt = null, bool $isActive = true): string
     {
-        $id = (string) Str::uuid();
-        $productId = (string) Str::uuid();
-        $storeId = (string) Str::uuid();
-
-        DB::table('products')->insert([
-            'id' => $productId,
+        $product = Product::create([
             'name' => 'Test product',
             'unit' => 'kg',
         ]);
 
-        DB::table('stores')->insert([
-            'id' => $storeId,
+        $store = Store::create([
             'name' => 'Test store',
             'brand' => 'Test brand',
             'address' => 'Test address',
@@ -300,10 +294,10 @@ class VotesTest extends TestCase
             'longitude' => 21.1,
         ]);
 
-        DB::table('offers')->insert([
-            'id' => $id,
-            'product_id' => $productId,
-            'store_id' => $storeId,
+        $offer = Offer::create([
+            'product_id' => $product->id,
+            'store_id' => $store->id,
+            'user_id' => $this->createUser()->id,
             'original_price' => 2.00,
             'discounted_price' => 1.50,
             'discount_percent' => 25,
@@ -312,21 +306,16 @@ class VotesTest extends TestCase
             'starts_at' => today()->toDateString(),
             'expires_at' => $expiresAt,
             'is_active' => $isActive,
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        return $id;
+        return $offer->id;
     }
 
     private function createVote(string $offerId, string $userId, string $vote): void
     {
-        DB::table('votes')->insert([
-            'id' => (string) Str::uuid(),
-            'offer_id' => $offerId,
+        Offer::findOrFail($offerId)->votes()->create([
             'user_id' => $userId,
             'vote' => $vote,
-            'created_at' => now(),
         ]);
     }
 

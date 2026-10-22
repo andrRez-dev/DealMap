@@ -2,22 +2,12 @@
 
 namespace App\Support;
 
-use App\Models\ApiClient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class ClientTokenResolver
 {
-    public function requireFrontendClient(Request $request): ApiClient
-    {
-        $client = $request->user('sanctum');
-
-        abort_unless($client instanceof ApiClient, 401, 'A frontend access token is required.');
-
-        return $client;
-    }
-
     public function resolveUser(Request $request, bool $required): ?User
     {
         $plainTextToken = $request->header('X-Client-Token');
