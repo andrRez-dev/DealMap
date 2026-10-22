@@ -1,38 +1,65 @@
+
 services:
   db:
     image: postgres:15-alpine
     container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dealmap
+      POSTGRES_DB: dealmap
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432" # Проброс только для локальных GUI-клиентов (DBeaver, DataGrip)
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d mydatabase"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d dealmap"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - dealmap-net
 
   backend:
-    build: ./backend
-    container_name: fastapi_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel_backend
     restart: always
-    ports:
-      - "8000:8000"
+    working_dir: /var/www/html
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/mydatabase
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=dealmap
+      - DB_USERNAME=admin
+      - DB_PASSWORD=dealmap
     volumes:
-      - ./backend:/app
+      - ./backend:/var/www/html
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - dealmap-net
+
+  webserver:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: always
+    ports:
+      - "8000:8000" # Пробрасываем API Laravel на порт 8000
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - backend
+    networks:
+      - dealmap-net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: react_frontend
     restart: always
     ports:
@@ -42,6 +69,12 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+    networks:
+      - dealmap-net
 
 volumes:
   postgres_data:
+
+networks:
+  dealmap-net:
+    driver: bridge
