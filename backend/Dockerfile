@@ -1,4 +1,4 @@
-# Используем официальный образ PHP 8.2 с FPM на базе Alpine для минимального размера
+# Используем официальный образ PHP 8.4 с FPM на базе Alpine
 FROM php:8.4-fpm-alpine
 
 # Устанавливаем рабочую директорию
@@ -26,11 +26,18 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Копируем существующие файлы проекта
 COPY . /var/www/html
 
+# Копируем и настраиваем entrypoint скрипт
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Настраиваем права доступа для директорий storage и bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Открываем порт 9000 для PHP-FPM
 EXPOSE 9000
+
+# Точка входа для первичной инициализации
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 CMD ["php-fpm"]
