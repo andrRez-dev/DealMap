@@ -96,7 +96,7 @@ class UsersController extends Controller
 
             $user = User::where('name', $validated['login'])->first();
             
-            if(!Hash::make($validated['password']) == $user->password_hash){
+            if(!Hash::check($validated['password'], $user->password_hash)){
                 $responseCode = 403;
                 throw new Exception('Incorrect password');
             }
