@@ -1,115 +1,58 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Exception;
-use Illuminate\Http\Request;
-use Laravel\Sanctum\PersonalAccessToken;
 use App\Models\Offer;
-use App\Models\User;
+use App\Support\ClientTokenResolver;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OffersController extends Controller
 {
-
-    private function failedResponse($error){
-        return response()->json([
-            'status' => 'Failed. Check message',
-            'message' => $error->getMessage()
-        ], 500);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(Request $request, ClientTokenResolver $tokenResolver): JsonResponse
     {
-        $clientToken = $request->header('X-Client-Token');
-        $responseCode = 200;
+        $userId = $tokenResolver->resolveUser($request, required: false)?->id;
 
-        try {
-            $tokenRecord = PersonalAccessToken::findToken($clientToken);
-            if ($tokenRecord && $tokenRecord->tokenable_type == User::class){
-                $offers_list = Offer::all();
-                if($offers_list->isEmpty()){
-                    $responseCode = 404;
-                    throw new Exception('No offers found');
-                }
-                return response()->json([
-                    'status' => 'Successfully',
-                    'offers' => $offers_list
-                ], $responseCode);
-            }
-            else{
-                $responseCode = 401;
-                throw new Exception('Invalid user token was used');
-            }
-        } catch (\Throwable $th) {
-            $this->failedResponse($th);
-        }
-    }
+        $offers = Offer::query()
+            ->with([
+                'product:id,name,unit',
+                'store:id,name,brand,address,city,latitude,longitude',
+            ])
+            ->withCount([
+                'votes as works_votes' => fn (Builder $query) => $query->where('vote', 'works'),
+                'votes as expired_votes' => fn (Builder $query) => $query->where('vote', 'expired'),
+            ])
+            ->when($userId !== null, function (Builder $query) use ($userId): void {
+                $query->with([
+                    'votes' => fn (HasMany $votes) => $votes
+                        ->where('user_id', $userId)
+                        ->select(['id', 'offer_id', 'user_id', 'vote']),
+                ]);
+            })
+            ->where('is_active', true)
+            ->where(function (Builder $query): void {
+                $query->whereNull('expires_at')
+                    ->orWhereDate('expires_at', '>=', today());
+            })
+            ->get()
+            ->map(function (Offer $offer) use ($userId): array {
+                return [
+                    ...$offer->attributesToArray(),
+                    'product_name' => $offer->product->name,
+                    'product_unit' => $offer->product->unit,
+                    'store_name' => $offer->store->name,
+                    'store_brand' => $offer->store->brand,
+                    'store_address' => $offer->store->address,
+                    'store_city' => $offer->store->city,
+                    'store_latitude' => $offer->store->latitude,
+                    'store_longitude' => $offer->store->longitude,
+                    'works_votes' => $offer->works_votes,
+                    'expired_votes' => $offer->expired_votes,
+                    'my_vote' => $userId === null ? null : $offer->votes->first()?->vote,
+                ];
+            });
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $clientToken = $request->header('X-Client-Token');
-        $responseCode = 200;
-
-        try {
-            $tokenRecord = PersonalAccessToken::findToken($clientToken);
-            if ($tokenRecord && $tokenRecord->tokenable_type == User::class){
-                
-
-            }
-            else{
-                $responseCode = 401;
-                throw new Exception('Invalid user token was used');
-            }
-        } catch(\Throwable $th){
-            $this->failedResponse($th);
-        }
-
-
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json($offers);
     }
 }
