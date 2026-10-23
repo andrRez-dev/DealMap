@@ -31,91 +31,66 @@ class UsersController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created user in storage.
      */
     public function store(Request $request)
     {
-        $responseCode = 200;
         $validated = $request->validate([
             'name' => 'required|string|min:3|max:255',
             'email' => 'required|email',
             'password' => 'required|min:4|max:255'
         ]);
 
-        try {
-            $checkIsAlreadyExists = User::where('email', $validated['email'])->exists();
-            if($checkIsAlreadyExists){
-                $responseCode = 400;
-                throw new Exception('This email is already being taken');
-            }
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password_hash' => Hash::make($validated['password']),
-                'is_active' => true
-            ]);
-
-            $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
-
-
-        } catch (\Throwable $th) {
-            if ($responseCode == 200){
-                $responseCode = 500;
-            }
-            return response()->json([
-                'status' => 'Failed. Check message',
-                'message' => $th->getMessage()
-            ], $responseCode);
+        $checkIsAlreadyExists = User::where('email', $validated['email'])->exists();
+        if($checkIsAlreadyExists){
+            return response()->json(['message' => 'This email is already being taken', 400]);
         }
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password_hash' => Hash::make($validated['password']),
+            'is_active' => true
+        ]);
+
+        $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
 
         return response()->json([
             'status' => 'The user is added',
             'client_token' => $token
-        ], $responseCode);
+        ], 200);
     }
 
     /**
-     * Display the specified resource.
+     * Verify user during login
      */
     public function verifyUser(Request $request)
     {
-        $responseCode = 200;
 
         $validated = $request->validate([
             'login' => 'required|string|min:3|max:255',
             'password' => 'required|min:4|max:255'
         ]);
-        try {
-            if (!User::where('email', $validated['login'])->exists()){
-                if(!User::where('name', $validated['login'])->exists()){
-                    return response()->json([
-                        'status' => 'User not found'
-                    ], 404);
-                }
-            }
 
-            $user = User::where('name', $validated['login'])->first();
-            
-            if(!Hash::check($validated['password'], $user->password_hash)){
-                $responseCode = 403;
-                throw new Exception('Incorrect password');
+        if (!User::where('email', $validated['login'])->exists()){
+            if(!User::where('name', $validated['login'])->exists()){
+                return response()->json([
+                    'message' => 'User not found'
+                ], 404);
             }
-            $user->tokens()->delete();
-            $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
-        } catch (\Throwable $th) {
-            if($responseCode == 200){
-                $responseCode = 500;
-            }
-            return response()->json([
-                'status' => 'Failed. Check message',
-                'message' => $th->getMessage()
-            ], $responseCode);
         }
+
+        $user = User::where('name', $validated['login'])->first();
+        
+        if(!Hash::check($validated['password'], $user->password_hash)){
+            return response()->json(['message' => 'Incorrect password'], 403);
+        }
+        $user->tokens()->delete();
+        $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
 
         return response()->json([
             'status' => 'User verified successfully',
             'client_token' => $token
-        ], $responseCode);
+        ], 200);
     }
 
     /**
@@ -127,44 +102,32 @@ class UsersController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified user in storage.
      */
     public function update(Request $request)
     {
         $clientToken = $request->header('X-Client-Token');
-        $responseCode = 200;
 
         $request->validate([
-            'name' => 'required|alpha',
+            'name' => 'required|string|min:3|max:255',
             'email' => 'required|email',
             'password' => 'required|min:4|max:255'
         ]);
 
-        try {
-            $tokenRecord = PersonalAccessToken::findToken($clientToken);
-            if ($tokenRecord && $tokenRecord->tokenable_type == User::class){
-                $user_id = $tokenRecord->tokenable_id;
-                $user = User::find($user_id);
-                $user->update($request->all());
-                $user->save();
-            }
-            else{
-                $responseCode = 401;
-                throw new Exception('Invalid user token was used');
-            }
-        } catch (\Throwable $th) {
-            if($responseCode == 200){
-                $responseCode = 500;
-            }
-            return response()->json([
-                'status' => 'Failed. Check message',
-                'message' => $th->getMessage()
-            ], $responseCode);
+        $tokenRecord = PersonalAccessToken::findToken($clientToken);
+        if ($tokenRecord && $tokenRecord->tokenable_type == User::class){
+            $user_id = $tokenRecord->tokenable_id;
+            $user = User::find($user_id);
+            $user->update($request->all());
+            $user->save();
+        }
+        else{
+            return response()->json(['message' => 'Invalid user token was used'], 401);
         }
 
         return response()->json([
             'status' => 'The user is updated',
-        ], $responseCode);
+        ], 200);
     }
 
     /**
@@ -172,21 +135,9 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        $responseCode = 200;
-        try {
-            $user = User::find($id);
-            if(!$user){
-                $responseCode = 404;
-                throw new Exception('No user found');
-            }
-        } catch (\Throwable $th) {
-            if($responseCode == 200){
-                $responseCode = 500;
-            }
-            return response()->json([
-                'status' => 'Failed. Check message',
-                'message' => $th->getMessage()
-            ], $responseCode);
+        $user = User::find($id);
+        if(!$user){
+            return response()->json(['message' => 'No user found'], 404);
         }
     }
 }
