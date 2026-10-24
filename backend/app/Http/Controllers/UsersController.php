@@ -7,6 +7,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
+use App\Support\ClientTokenResolver;
 
 class UsersController extends Controller
 {
@@ -32,7 +33,7 @@ class UsersController extends Controller
 
     /**
      * Store a newly created user in storage.
-     * @unauthenticated
+     *
      */
     public function store(Request $request)
     {
@@ -57,18 +58,17 @@ class UsersController extends Controller
 
         return response()->json([
             'status' => 'The user is added',
-            'client_token' => $token
+            'client_token' => $token,
+            'user_info' => $user
         ], 200);
     }
 
     /**
      * Verify user during login
-     * @unauthenticated
      */
 
     public function verifyUser(Request $request)
     {
-
         $validated = $request->validate([
             'login' => 'required|string|min:3|max:255',
             'password' => 'required|min:4|max:255'
@@ -92,8 +92,38 @@ class UsersController extends Controller
 
         return response()->json([
             'status' => 'User verified successfully',
-            'client_token' => $token
+            'client_token' => $token,
+            'user_info' => $user
         ], 200);
+    }
+
+    /**
+    * Cheching authorization of the token
+    */
+
+    public function checkAuth(Request $request, ClientTokenResolver $tokenResolver){
+        $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
+        
+        $clientToken = $request->header('X-Client-Token');
+
+        $tokenRecord = PersonalAccessToken::findToken($clientToken);
+
+        if($tokenRecord){
+            $user = User::find($tokenRecord->tokenable_id);
+
+            return response()->json([
+                'message' => 'Token authorized',
+                'client_token' => $clientToken,
+                'user_info' => $user
+            ], 200);
+        }
+        else{
+            return response()->json([
+                'message' => 'Token is not found',
+                'client_token' => $clientToken
+            ], 404);
+        }
     }
 
     /**
@@ -107,8 +137,11 @@ class UsersController extends Controller
     /**
      * Update the specified user in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, ClientTokenResolver $tokenResolver)
     {
+        $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
+        
         $clientToken = $request->header('X-Client-Token');
 
         $request->validate([
@@ -118,18 +151,14 @@ class UsersController extends Controller
         ]);
 
         $tokenRecord = PersonalAccessToken::findToken($clientToken);
-        if ($tokenRecord && $tokenRecord->tokenable_type == User::class){
-            $user_id = $tokenRecord->tokenable_id;
-            $user = User::find($user_id);
-            $user->update($request->all());
-            $user->save();
-        }
-        else{
-            return response()->json(['message' => 'Invalid user token was used'], 401);
-        }
+        $user_id = $tokenRecord->tokenable_id;
+        $user = User::find($user_id);
+        $user->update($request->all());
+        $user->save();
 
         return response()->json([
             'status' => 'The user is updated',
+            'user_info' => $user
         ], 200);
     }
 
