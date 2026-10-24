@@ -61,12 +61,12 @@ function ProtectedAuth() {
 export default function App() {
   return (
     <BrowserRouter>
-      <main className="w-screen h-screen">
+      <main className="w-screen min-h-screen h-screen">
         <Routes>
           <Route path="/" element={<ProtectedAuth />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </BrowserRouter>
