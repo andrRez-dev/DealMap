@@ -32,6 +32,7 @@ class UsersController extends Controller
 
     /**
      * Store a newly created user in storage.
+     * @unauthenticated
      */
     public function store(Request $request)
     {
@@ -62,7 +63,9 @@ class UsersController extends Controller
 
     /**
      * Verify user during login
+     * @unauthenticated
      */
+
     public function verifyUser(Request $request)
     {
 
