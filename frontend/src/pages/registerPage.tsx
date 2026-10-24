@@ -46,7 +46,7 @@ export default function Register() {
         return;
       }
 
-      localStorage.setItem("clientToken", data.client_token);
+      localStorage.setItem("client_token", data.client_token);
       navigate("/");
     } catch {
       setError("Did not succeed to connect with the server");
@@ -82,6 +82,7 @@ export default function Register() {
               name="name"
               placeholder="Name Surname"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              required
             />
 
             <label htmlFor="email" className="mt-3">
@@ -93,6 +94,7 @@ export default function Register() {
               name="email"
               placeholder="username@example.com"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              required
             />
 
             <label htmlFor="password" className="mt-3">
@@ -104,6 +106,7 @@ export default function Register() {
               name="password"
               placeholder="**********"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              required
             />
             <button
               type="submit"
@@ -114,9 +117,15 @@ export default function Register() {
             </button>
           </form>
 
-          {error && <p role="alert">{error}</p>}
+          {error ? (
+            <p className="h-5 text-red-500 font-medium mt-4" role="alert">
+              {error}
+            </p>
+          ) : (
+            <div className="h-5 w-5 mt-4" />
+          )}
 
-          <p className="text-sm text-gray-300 mt-22">
+          <p className="text-sm text-gray-300 mt-14">
             Already have an account?{" "}
             <Link to="/login" className="text-white underline cursor-pointer">
               Log in
