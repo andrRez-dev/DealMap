@@ -75,17 +75,17 @@ class UsersController extends Controller
             'password' => 'required|min:4|max:255'
         ]);
 
-        if (!User::where('email', $validated['login'])->exists()){
-            if(!User::where('name', $validated['login'])->exists()){
-                return response()->json([
-                    'message' => 'User not found'
-                ], 404);
-            }
-        }
+        $user = User::where('email', $validated['login'])
+            ->orWhere('name', $validated['login'])
+            ->first();
 
-        $user = User::where('name', $validated['login'])->first();
+        if (! $user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
         
-        if(!Hash::check($validated['password'], $user->password_hash)){
+        if (! Hash::check($validated['password'], $user->password_hash)) {
             return response()->json(['message' => 'Incorrect password'], 403);
         }
         $user->tokens()->delete();
