@@ -34,8 +34,8 @@ export default function Login() {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-type": "application/json",
         },
         body: JSON.stringify(body),
       });
@@ -73,6 +73,7 @@ export default function Login() {
               name="login"
               placeholder="username@example.com"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              required
             />
             <div className="flex flex-row mt-5 justify-between">
               <label htmlFor="password">Password</label>
@@ -86,6 +87,7 @@ export default function Login() {
               name="password"
               placeholder="**********"
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              required
             />
             <button
               type="submit"
@@ -95,20 +97,26 @@ export default function Login() {
             </button>
           </form>
 
-          {error && <p role="alert">{error}</p>}
+          {error ? (
+            <p className="text-red-500 font-medium h-5 my-4" role="alert">
+              {error}
+            </p>
+          ) : (
+            <div className="h-5 w-5 my-4" />
+          )}
 
-          <div className="flex flex-row items-center my-7">
+          <div className="flex flex-row items-center ">
             <div className="w-35 h-px bg-white" />
             <p className="mx-2 text-sm">Or</p>
             <div className="w-35 h-px bg-white" />
           </div>
 
-          <button className="flex flex-row items-center border border-gray-300 p-2 rounded-md text-sm gap-1 hover:bg-white hover:text-black transition-all">
+          <button className="flex flex-row items-center mt-4 border border-gray-300 p-2 rounded-md text-sm gap-1 cursor-not-allowed text-gray-500">
             <GoogleIcon className="scale-95" />
             <p>Continue with Google </p>
           </button>
 
-          <p className="text-sm text-gray-300 mt-12">
+          <p className="text-sm text-gray-300 mt-10">
             Don't have an account?{" "}
             <Link
               to="/register"
