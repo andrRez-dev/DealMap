@@ -34,8 +34,8 @@ export default function Login() {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-type": "application/json",
         },
         body: JSON.stringify(body),
       });

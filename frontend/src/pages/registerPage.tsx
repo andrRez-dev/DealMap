@@ -33,8 +33,8 @@ export default function Register() {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-type": "application/json",
         },
         body: JSON.stringify(body),
       });
@@ -118,7 +118,7 @@ export default function Register() {
           </form>
 
           {error ? (
-            <p className="h-5 text-red-500 font-medium mt-4" role="alert">
+            <p className="h-5 text-red-500 font-medium mt-4 w-90" role="alert">
               {error}
             </p>
           ) : (

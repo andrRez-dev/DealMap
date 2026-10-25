@@ -118,7 +118,9 @@ export default function InfoPage() {
 
               <p className="text-gray-400 text-sm mt-6">Grocery</p>
 
-              <h3 className="text-2xl font-semibold mt-1">Chicken breast</h3>
+              <h3 className="text-2xl font-semibold mt-1">
+                Discounted product
+              </h3>
 
               <div className="flex justify-between items-end mt-6">
                 <div className="flex items-center gap-3">

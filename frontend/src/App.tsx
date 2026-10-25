@@ -27,10 +27,12 @@ function ProtectedAuth() {
       }
 
       try {
-        const response = await fetch(`${api}/api/offers`, {
+        const response = await fetch(`${api}/api/user/checkAuth`, {
+          method: "POST",
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-type": "application/json",
             "X-Client-Token": userToken,
           },
         });
@@ -64,8 +66,8 @@ export default function App() {
     <BrowserRouter>
       <main className="w-screen min-h-screen h-screen">
         <Routes>
-          <Route path="/" element={<ProtectedAuth />} />
-          <Route path="/info" element={<InfoPage />} />
+          <Route path="/" element={<InfoPage />} />
+          <Route path="/home" element={<ProtectedAuth />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/" replace />} />
