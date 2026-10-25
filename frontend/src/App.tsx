@@ -1,6 +1,7 @@
 import Login from "./pages/loginPage";
 import Register from "./pages/registerPage";
 import Home from "./pages/homePage";
+import InfoPage from "./pages/infoPage";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -64,6 +65,7 @@ export default function App() {
       <main className="w-screen min-h-screen h-screen">
         <Routes>
           <Route path="/" element={<ProtectedAuth />} />
+          <Route path="/info" element={<InfoPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/" replace />} />
