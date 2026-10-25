@@ -47,7 +47,7 @@ export default function Register() {
       }
 
       localStorage.setItem("client_token", data.client_token);
-      navigate("/");
+      navigate("/home");
     } catch {
       setError("Did not succeed to connect with the server");
     } finally {
