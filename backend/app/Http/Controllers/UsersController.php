@@ -45,7 +45,7 @@ class UsersController extends Controller
 
         $checkIsAlreadyExists = User::where('email', $validated['email'])->exists();
         if($checkIsAlreadyExists){
-            return response()->json(['message' => 'This email is already being taken', 400]);
+            return response()->json(['message' => 'This email is already being taken'], 400);
         }
         $user = User::create([
             'name' => $validated['name'],
@@ -88,7 +88,15 @@ class UsersController extends Controller
             return response()->json(['message' => 'Incorrect password'], 403);
         }
         $user->tokens()->delete();
-        $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
+        if($user->is_active){
+            $token = $user->createToken('user-access-token', ['*'], now()->plus(weeks: 1))->plainTextToken;
+        }
+        else{
+            return response()->json([
+                'message' => 'User is inactive. Contact our administrator.'
+            ], 401);
+        }
+        
 
         return response()->json([
             'status' => 'User verified successfully',
