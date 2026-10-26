@@ -1,17 +1,17 @@
 import { Link } from "react-router-dom";
-import LoginImg from "../components/images/loginImg.png";
-import RegisterImg from "../components/images/registerImg.png";
+import ShareDeal from "../components/images/shareDeal.png";
+import DealPlace from "../components/images/dealPlace.png";
 
 export default function InfoPage() {
   return (
     <div className="min-h-screen w-full bg-green-950 text-white overflow-x-hidden">
       <header className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="w-full mx-auto px-6 h-20 flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold">
             Deal<span className="text-green-400">Map</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
+          <div className="hidden md:flex items-center gap-20 text-gray-300 font-medium">
             <a href="#features" className="hover:text-white transition-all">
               Features
             </a>
@@ -21,7 +21,7 @@ export default function InfoPage() {
             <a href="#community" className="hover:text-white transition-all">
               Community
             </a>
-          </nav>
+          </div>
 
           <div className="flex items-center gap-3">
             <Link
@@ -298,18 +298,11 @@ export default function InfoPage() {
                 local stores and help others save money. Other users can confirm
                 whether the deal is still available.
               </p>
-
-              <Link
-                to="/register"
-                className="w-fit bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-gray-300 transition-all mt-8"
-              >
-                Join the community →
-              </Link>
             </div>
 
             <div className="relative min-h-110">
               <img
-                src={RegisterImg}
+                src={ShareDeal}
                 alt="DealMap community"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -337,7 +330,7 @@ export default function InfoPage() {
           <div className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden grid lg:grid-cols-2">
             <div className="relative min-h-100">
               <img
-                src={LoginImg}
+                src={DealPlace}
                 alt="Discover local deals"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -358,13 +351,6 @@ export default function InfoPage() {
                 Instead of checking multiple store websites and applications,
                 use DealMap to discover and compare nearby promotions.
               </p>
-
-              <Link
-                to="/register"
-                className="w-fit border border-gray-400 px-6 py-3 rounded-md hover:bg-white hover:text-black transition-all mt-7"
-              >
-                Start exploring →
-              </Link>
             </div>
           </div>
         </section>
