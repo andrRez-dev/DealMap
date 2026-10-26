@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OffersController;
+use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\UsersController;
 use App\Models\User;
@@ -28,6 +29,8 @@ Route::get('/offers/{id}', [OffersController::class, 'offers_by_store'])
 Route::post('/offers/create', [OffersController::class, 'store'])
 ->middleware('auth:sanctum');
 
+Route::get('/products/search', [ProductsController::class, 'search'])
+->middleware('auth:sanctum');
 
 
 Route::post('/offers/{offer}/votes', [VotesController::class, 'store'])

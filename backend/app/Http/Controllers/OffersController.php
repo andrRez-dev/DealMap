@@ -73,12 +73,17 @@ class OffersController extends Controller
         return response()->json($offers);
     }
 
+    /**
+     * Getting offer by store
+     *
+     */
+
     public function offers_by_store(Request $request, ClientTokenResolver $tokenResolver) : JsonResponse{
         $user = $tokenResolver->resolveUser($request, required: true)
             ?? abort(401, 'A user access token is required.');
 
         $request->merge(['id' => $request->route('id')]);
-        
+
         $validated = $request->validate([
             'id' => "required|uuid:4|exists:stores,id",
         ]);
