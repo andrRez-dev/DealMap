@@ -178,6 +178,11 @@ class OffersController extends Controller
         required: true,
         type: 'string', 
     )]
+    #[BodyParameter(
+        'product.unit',
+        description: 'Required if product is just created',
+        required: true,
+    )]
     
 
     public function store(Request $request, ClientTokenResolver $tokenResolver): JsonResponse{
@@ -192,7 +197,7 @@ class OffersController extends Controller
             'product.category_id' => 'required_if_declined:product.exists|string|exists:categories,id',
             'product.name' => 'required_if_declined:product.exists|string|max:40|min:3',
             'product.name_lt' => 'nullable|string|max:40|min:3',
-            'product.unit' => 'required|string|in:kg,l,vnt',
+            'product.unit' => 'required_if_declined:product.exists|string|in:kg,l,vnt',
             'product.barcode' => 'nullable|string|max:13',
             'product.description' => 'nullable|string|max:255',
             'store_id' => 'required|string|uuid:4|exists:stores,id',
@@ -200,8 +205,8 @@ class OffersController extends Controller
             'description' => 'nullable|string',
             'starts_at' => ['required', 'date_format:Y-m-d', Rule::date()->equals(today())],
             'expires_at' => ['required', 'date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
-            'original_price' => 'required|decimal:2',
-            'discounted_price' => 'required_if_declined:discount_percent|decimal:2',
+            'original_price' => 'required|decimal:2|min:0.1',
+            'discounted_price' => 'required_if_declined:discount_percent|decimal:2|min:0.1',
             'discount_percent' => 'required_if_declined:discount_price|integer|min:1|max:100'
         ]);
 
@@ -220,13 +225,12 @@ class OffersController extends Controller
             ]);
         }
         if($request['discounted_price'] == null){
-            $discounted_price = $request['original_price'] * ($request['discount_percent'] * 0.01);
+            $discounted_price = $request['original_price'] * (1 - $request['discount_percent'] * 0.01);
             $discount_percent = $request['discount_percent'];
         }
         else{
             $discounted_price = $request['discounted_price'];
-            $discount_percent = round($discounted_price / ($request['original_price'] / 100), 0); 
-            
+            $discount_percent = round(1 - $discounted_price / ($request['original_price'] * 100)); 
         }
         
         $offer = Offer::create([
