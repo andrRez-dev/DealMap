@@ -53,9 +53,7 @@ export default function SearchContent() {
             aria-hidden="true"
             className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-[#e9eee7] bg-white p-3.5 shadow-[0_5px_18px_#263c2a0a] transition-transform duration-300 hover:-translate-y-0.5 md:grid-cols-[76px_minmax(0,1fr)_auto] md:gap-4 md:p-4"
           >
-            <SkeletonBlock
-              className="h-16 w-16 rounded-xl md:h-[76px] md:w-[76px]"
-            />
+            <SkeletonBlock className="h-16 w-16 rounded-xl md:h-[76px] md:w-[76px]" />
             <div className="flex min-w-0 flex-col gap-2.5">
               <SkeletonBlock className="h-4 w-3/4" />
               <SkeletonBlock className="h-3 w-1/2" />

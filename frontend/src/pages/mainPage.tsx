@@ -1,11 +1,13 @@
 import { MapPin, UserRoundArrowLeft, ChevronDown } from "lucide-react";
-import { Outlet } from "react-router-dom";
-import { House, Search, MapPinned, Heart } from "lucide-react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { House, Search, MapPinned, Heart, SquarePlus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const panelElement = "flex flex-col items-center text-sm gap-1";
 
 export default function MainPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col justify-between w-full h-full bg-[#e9eee8]">
       <header className="flex items-center justify-between px-10 bg-white min-h-22 w-full">
@@ -25,7 +27,15 @@ export default function MainPage() {
             <ChevronDown className="scale-80 mt-1" />
           </div>
         </div>
-        <UserRoundArrowLeft className="scale-110" />
+        <button
+          onClick={() => {
+            localStorage.removeItem("client_token");
+            navigate("/login");
+          }}
+          className="hover:scale-110 hover:text-green-700 cursor-pointer transition-all active:scale-90"
+        >
+          <UserRoundArrowLeft className="scale-110" />
+        </button>
       </header>
 
       {/* main content of the page ⬇️  */}
@@ -41,6 +51,11 @@ export default function MainPage() {
           <Link to="/main/search" className={panelElement}>
             <Search />
             <p>Search</p>
+          </Link>
+
+          <Link to="/main/add" className={panelElement}>
+            <SquarePlus />
+            <p>Add</p>
           </Link>
 
           <Link to="/main/map" className={panelElement}>
