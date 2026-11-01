@@ -4,9 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OffersController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\StoresController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\UsersController;
-use App\Models\User;
 
 Route::resource('user', UsersController::class)->only(['store', 'update'])
 ->middleware('auth:sanctum');
@@ -35,3 +35,7 @@ Route::get('/products/search', [ProductsController::class, 'search'])
 
 Route::post('/offers/{offer}/votes', [VotesController::class, 'store'])
     ->middleware('auth:sanctum');
+
+
+Route::get('/stores/get', [StoresController::class, 'getStores'])
+->middleware('auth:sanctum');
