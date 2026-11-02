@@ -5,6 +5,7 @@ import InfoPage from "./pages/infoPage";
 
 import HomeContent from "./components/mainContent/homeContent";
 import SearchContent from "./components/mainContent/searchContent";
+import AddDealContent from "./components/mainContent/addDealContent";
 import MapContent from "./components/mainContent/mapContent";
 import FavoriteContent from "./components/mainContent/favoriteContent";
 
@@ -90,6 +91,7 @@ export default function App() {
               <Route index element={<Navigate to="home" replace />} />
               <Route path="home" element={<HomeContent />} />
               <Route path="search" element={<SearchContent />} />
+              <Route path="add" element={<AddDealContent />} />
               <Route path="map" element={<MapContent />} />
               <Route path="favorites" element={<FavoriteContent />} />
             </Route>
