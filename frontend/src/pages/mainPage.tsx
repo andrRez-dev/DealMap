@@ -2,11 +2,15 @@ import { MapPin, UserRoundArrowLeft, ChevronDown } from "lucide-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { House, Search, MapPinned, Heart, SquarePlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const panelElement = "flex flex-col items-center text-sm gap-1";
+const chosen = "flex flex-col items-center text-sm gap-1 text-green-700";
 
 export default function MainPage() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  console.log("pathname is" + pathname);
 
   return (
     <div className="flex flex-col justify-between w-full h-full bg-[#e9eee8]">
@@ -43,27 +47,52 @@ export default function MainPage() {
 
       <footer>
         <div className="flex flex-row min-h-22 w-full bg-white items-center justify-center gap-25">
-          <Link to="/main/home" className={panelElement}>
+          <Link
+            to="/main/home"
+            className={
+              pathname === "/main/home" ? `${chosen}` : `${panelElement}`
+            }
+          >
             <House />
             <p>Home</p>
           </Link>
 
-          <Link to="/main/search" className={panelElement}>
+          <Link
+            to="/main/search"
+            className={
+              pathname === "/main/search" ? `${chosen}` : `${panelElement}`
+            }
+          >
             <Search />
             <p>Search</p>
           </Link>
 
-          <Link to="/main/add" className={panelElement}>
+          <Link
+            to="/main/add"
+            className={
+              pathname === "/main/add" ? `${chosen}` : `${panelElement}`
+            }
+          >
             <SquarePlus />
             <p>Add</p>
           </Link>
 
-          <Link to="/main/map" className={panelElement}>
+          <Link
+            to="/main/map"
+            className={
+              pathname === "/main/map" ? `${chosen}` : `${panelElement}`
+            }
+          >
             <MapPinned />
             <p>Map</p>
           </Link>
 
-          <Link to="/main/favorites" className={panelElement}>
+          <Link
+            to="/main/favorites"
+            className={
+              pathname === "/main/favorites" ? `${chosen}` : `${panelElement}`
+            }
+          >
             <Heart />
             <p>Favorites</p>
           </Link>
