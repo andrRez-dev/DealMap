@@ -108,7 +108,7 @@ export default function MapContent() {
   return (
     <section
       aria-label="Interactive map"
-      className="relative min-h-0 flex-1 p-3 md:p-4"
+      className="relative h-full min-h-0 p-3 md:p-4"
     >
       {error && (
         <p

@@ -40,7 +40,7 @@ class OffersController extends Controller
                 $query->with([
                     'votes' => fn (HasMany $votes) => $votes
                         ->where('user_id', $userId)
-                        ->select(['id', 'offer_id', 'user_id', 'vote']),
+                        ->select(['offer_id', 'user_id', 'vote', 'created_at']),
                 ]);
             })
             ->where('is_active', true)
@@ -50,6 +50,8 @@ class OffersController extends Controller
             })
             ->get()
             ->map(function (Offer $offer) use ($userId): array {
+                $vote = $userId === null ? null : $offer->votes->first();
+
                 return [
                     ...$offer->attributesToArray(),
                     'product_name' => $offer->product->name,
@@ -62,10 +64,10 @@ class OffersController extends Controller
                     'store_longitude' => $offer->store->longitude,
                     'works_votes' => $offer->works_votes,
                     'expired_votes' => $offer->expired_votes,
-                    'my_vote' => $userId === null ? null : [
-                        'offer_id' => $offer->votes->offer_id,
-                        'vote' => $offer->votes->vote,
-                        'created_at' => $offer->votes->created_at
+                    'my_vote' => $vote === null ? null : [
+                        'offer_id' => $vote->offer_id,
+                        'vote' => $vote->vote,
+                        'created_at' => $vote->created_at,
                     ],
                 ];
             });

@@ -280,7 +280,7 @@ export default function AddDealContent() {
   }
 
   return (
-    <section className="min-h-0 flex-1 overflow-y-auto px-5 py-6 md:px-8 md:py-7">
+    <section className="h-full flex-1 overflow-y-auto px-5 py-6 md:px-8 md:py-7">
       <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-5 shadow-sm md:p-8">
         <h2 className="text-xl font-semibold text-[#26332a]">Add an offer</h2>
         <p className="mt-1 text-sm text-gray-500">

@@ -254,7 +254,13 @@ class VotesTest extends TestCase
             ->assertJsonPath('0.store_city', 'Klaipėda')
             ->assertJsonPath('0.works_votes', 1)
             ->assertJsonPath('0.expired_votes', 1)
-            ->assertJsonPath('0.my_vote', 'works');
+            ->assertJsonPath('0.my_vote.offer_id', $offerId)
+            ->assertJsonPath('0.my_vote.vote', 'works')
+            ->assertJsonStructure([
+                '0' => [
+                    'my_vote' => ['offer_id', 'vote', 'created_at'],
+                ],
+            ]);
     }
 
     public function test_frontend_client_can_view_offer_list_without_a_user_token(): void

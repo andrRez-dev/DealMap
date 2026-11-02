@@ -10,7 +10,6 @@ const chosen = "flex flex-col items-center text-sm gap-1 text-green-700";
 export default function MainPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  console.log("pathname is" + pathname);
 
   return (
     <div className="flex flex-col justify-between w-full h-full bg-[#e9eee8]">
@@ -43,7 +42,9 @@ export default function MainPage() {
       </header>
 
       {/* main content of the page ⬇️  */}
-      <Outlet />
+      <div className="min-h-0 flex-1">
+        <Outlet />
+      </div>
 
       <footer>
         <div className="flex flex-row min-h-22 w-full bg-white items-center justify-center gap-25">
