@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getRequestHeaders, readResponse } from "../shared/api";
+import type { Store } from "../shared/types";
 import OfferFields from "./addDeal/OfferFields";
 import ProductFields from "./addDeal/ProductFields";
-import { getRequestHeaders, readResponse } from "./addDeal/api";
 import useProductSearch from "./addDeal/useProductSearch";
-import type { Category, Product, ProductDraft, Store } from "./addDeal/types";
+import type { Category, Product, ProductDraft } from "./addDeal/types";
 
 type StoresResponse = {
   stores?: Store[];
@@ -46,6 +48,8 @@ function getDateAfterDays(days: number): string {
 }
 
 export default function AddDealContent() {
+  const [searchParams] = useSearchParams();
+  const preferredStoreId = searchParams.get("store");
   const [stores, setStores] = useState<Store[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingForm, setIsLoadingForm] = useState(true);
@@ -98,7 +102,13 @@ export default function AddDealContent() {
         }
 
         if (isCurrent) {
-          setStores(storesData.stores.filter((store) => store.is_active));
+          const activeStores = storesData.stores.filter(
+            (store) => store.is_active,
+          );
+          setStores(activeStores);
+          if (activeStores.some((store) => store.id === preferredStoreId)) {
+            setStoreId(preferredStoreId ?? "");
+          }
           setCategories(
             categoriesData.categories.toSorted(
               (first, second) =>
@@ -125,7 +135,7 @@ export default function AddDealContent() {
     return () => {
       isCurrent = false;
     };
-  }, [api]);
+  }, [api, preferredStoreId]);
 
   function chooseProduct(product: Product): void {
     productSearch.selectProduct(product);

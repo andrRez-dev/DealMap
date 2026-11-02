@@ -1,12 +1,3 @@
-export type Store = {
-  id: string;
-  name: string;
-  brand: string | null;
-  address: string | null;
-  city: string;
-  is_active: boolean;
-};
-
 export type Category = {
   id: number | string;
   name: string;

@@ -8,24 +8,16 @@ import {
   useMap,
   ZoomControl,
 } from "react-leaflet";
-import { getRequestHeaders, readResponse } from "./addDeal/api";
+import { Link } from "react-router-dom";
+import { getRequestHeaders, readResponse } from "../shared/api";
+import type { Store } from "../shared/types";
 import "leaflet/dist/leaflet.css";
 
-type StoreLocation = {
-  id: string;
-  name: string;
-  brand: string | null;
-  address: string | null;
-  city: string;
-  latitude: string | number;
-  longitude: string | number;
-};
-
 type StoresResponse = {
-  stores?: StoreLocation[];
+  stores?: Store[];
 };
 
-type LocatedStore = StoreLocation & {
+type LocatedStore = Store & {
   latitude: number;
   longitude: number;
 };
@@ -149,6 +141,9 @@ export default function MapContent() {
           <CircleMarker
             key={store.id}
             center={[store.latitude, store.longitude]}
+            eventHandlers={{
+              mouseover: (event) => event.target.openPopup(),
+            }}
             radius={9}
             pathOptions={{
               color: "#ffffff",
@@ -161,6 +156,13 @@ export default function MapContent() {
               <strong>{store.name}</strong>
               {store.address && <div>{store.address}</div>}
               <div>{store.city}</div>
+              <Link
+                to={`/main/add?store=${encodeURIComponent(store.id)}`}
+                className="mt-2 inline-block rounded bg-green-700 px-3 py-1.5 text-sm font-medium text-white no-underline hover:bg-green-800 cursor-pointer"
+                style={{ color: "#fff" }}
+              >
+                Add offer
+              </Link>
             </Popup>
           </CircleMarker>
         ))}
