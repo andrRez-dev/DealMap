@@ -143,7 +143,7 @@ class OffersController extends Controller
         description: 'Format: YYYY-MM-DD',
         type: 'string',
         format: 'date',
-        required: true,
+        required: false,
         example: '2026-09-20'
     )]
     #[BodyParameter(
@@ -192,19 +192,15 @@ class OffersController extends Controller
         
         $request->validate([
             'product' => 'required|array',
-            'product.exists' => 'required|boolean:strict',
+            'product.exists' => 'required|boolean',
             'product.id' => 'required_if_accepted:product.exists|uuid:4|exists:products,id',
             'product.category_id' => 'required_if_declined:product.exists|string|exists:categories,id',
             'product.name' => 'required_if_declined:product.exists|string|max:40|min:3',
-            'product.name_lt' => 'nullable|string|max:40|min:3',
             'product.unit' => 'required_if_declined:product.exists|string|in:kg,l,vnt',
             'product.barcode' => 'nullable|string|max:13',
-            'product.description' => 'nullable|string|max:255',
             'store_id' => 'required|string|uuid:4|exists:stores,id',
-            'title' => 'required|string',
-            'description' => 'nullable|string',
             'starts_at' => ['required', 'date_format:Y-m-d', Rule::date()->equals(today())],
-            'expires_at' => ['required', 'date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
+            'expires_at' => ['date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
             'original_price' => 'required|decimal:2|min:0.1',
             'discounted_price' => 'required_if_declined:discount_percent|decimal:2|min:0.1',
             'discount_percent' => 'required_if_declined:discount_price|integer|min:1|max:100'
@@ -217,10 +213,8 @@ class OffersController extends Controller
             $product = Product::create([
                 'category_id' => $request['product.category_id'],
                 'name' => $request['product.name'],
-                'name_lt' => $request['product.name_lt'],
                 'unit' => $request['product.unit'],
                 'barcode' => $request['product.barcode'],
-                'description' => $request['product.description'],
                 'is_active' => true
             ]);
         }
@@ -230,7 +224,7 @@ class OffersController extends Controller
         }
         else{
             $discounted_price = $request['discounted_price'];
-            $discount_percent = round(1 - $discounted_price / ($request['original_price'] * 100)); 
+            $discount_percent = round((1 - ($discounted_price / $request['original_price'])) * 100);
         }
         
         $offer = Offer::create([
@@ -240,8 +234,6 @@ class OffersController extends Controller
             'original_price' => $request['original_price'],
             'discounted_price' => $discounted_price,
             'discount_percent' => $discount_percent,
-            'title' => $request['title'],
-            'description' => $request['description'],
             'starts_at' => $request['starts_at'],
             'expires_at' => $request['expires_at'],
             'is_active' => true
@@ -255,7 +247,7 @@ class OffersController extends Controller
                 'id' => $offer->id,
                 'product_id' => $offer->product_id,
                 'store_id' => $offer->store_id,
-                'title' => $offer->title
+                'title' => "-" . $offer->discount_percent . "% for " . $offer->product->name
             ]
         ], 200);
     }
