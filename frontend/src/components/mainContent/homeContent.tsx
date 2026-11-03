@@ -46,7 +46,7 @@ export default function HomeContent() {
         </div>
 
         {/* TEMPORARY MAP EXAMPLE */}
-        <div className="relative h-[190px] overflow-hidden rounded-[19px] border border-[#dce7d8] bg-[#e3eddf] min-[900px]:h-[350px] max-[780px]:h-[165px] mt-3 shadow-xl cursor-not-allowed">
+        <div className="relative h-[190px] overflow-hidden rounded-[19px] border border-[#dce7d8] bg-[#e3eddf] min-[900px]:h-87.5 max-[780px]:h-[165px] mt-3 shadow-xl cursor-not-allowed">
           <svg
             viewBox="0 0 360 190"
             preserveAspectRatio="none"
