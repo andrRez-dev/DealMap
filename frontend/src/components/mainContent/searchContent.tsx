@@ -80,7 +80,7 @@ export default function SearchContent() {
   }, []);
 
   return (
-    <section className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10">
+    <section className="h-full flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 overflow-hidden">
       <div className="w-full">
         <header className="mb-6">
           <h2 className="text-2xl font-semibold tracking-tight text-[#26332a]">

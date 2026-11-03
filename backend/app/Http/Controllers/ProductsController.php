@@ -27,6 +27,7 @@ class ProductsController extends Controller
                 'name',
                 'name_lt',
                 'category_id',
+                'unit',
             ])
             ->where(function ($builder) use ($query) {
                 $builder

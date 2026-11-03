@@ -69,18 +69,6 @@ export default function ProductFields({
             />
           </label>
           <label className={labelClassName}>
-            Lithuanian name
-            <input
-              className={fieldClassName}
-              minLength={3}
-              maxLength={40}
-              value={productDraft.name_lt}
-              onChange={(event) =>
-                onProductDraftChange({ name_lt: event.target.value })
-              }
-            />
-          </label>
-          <label className={labelClassName}>
             Category *
             <select
               className={fieldClassName}
@@ -111,18 +99,6 @@ export default function ProductFields({
               value={productDraft.barcode}
               onChange={(event) =>
                 onProductDraftChange({ barcode: event.target.value })
-              }
-            />
-          </label>
-          <label className={`${labelClassName} md:col-span-2`}>
-            Product description
-            <textarea
-              className={fieldClassName}
-              rows={2}
-              maxLength={255}
-              value={productDraft.description}
-              onChange={(event) =>
-                onProductDraftChange({ description: event.target.value })
               }
             />
           </label>
@@ -187,38 +163,39 @@ export default function ProductFields({
             )}
           {productSearch.selectedProduct && (
             <p className="mt-2 text-sm text-green-800" role="status">
-              Selected product: {productSearch.selectedProduct.name}
+              Selected product: {productSearch.selectedProduct.name} (
+              {productSearch.selectedProduct.unit})
             </p>
           )}
         </div>
       )}
 
-      <fieldset>
-        <legend className={labelClassName}>Unit *</legend>
-        <div className="mt-2 flex gap-2" role="group" aria-label="Unit">
-          {[
-            ["kg", "Kilogram"],
-            ["l", "Liter"],
-            ["vnt", "Piece"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={productDraft.unit === value}
-              onClick={() =>
-                onProductDraftChange({ unit: value })
-              }
-              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                productDraft.unit === value
-                  ? "border-green-700 bg-green-700 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              {label} ({value})
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      {isNewProduct && (
+        <fieldset>
+          <legend className={labelClassName}>Unit *</legend>
+          <div className="mt-2 flex gap-2" role="group" aria-label="Unit">
+            {[
+              ["kg", "Kilogram"],
+              ["l", "Liter"],
+              ["vnt", "Piece"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={productDraft.unit === value}
+                onClick={() => onProductDraftChange({ unit: value })}
+                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                  productDraft.unit === value
+                    ? "border-green-700 bg-green-700 text-white"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {label} ({value})
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
     </>
   );
 }
