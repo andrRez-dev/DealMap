@@ -76,11 +76,10 @@ export default function OfferFields({
           />
         </label>
         <label className={labelClassName}>
-          Expires on *
+          Expires on
           <input
             className={fieldClassName}
             type="date"
-            required
             min={today}
             max={maxExpiryDate}
             value={expiresAt}
@@ -117,9 +116,8 @@ export default function OfferFields({
 
       <label className={labelClassName}>
         Offer description
-        <textarea
+        <input
           className={fieldClassName}
-          rows={3}
           value={description}
           onChange={(event) => onDescriptionChange(event.target.value)}
         />

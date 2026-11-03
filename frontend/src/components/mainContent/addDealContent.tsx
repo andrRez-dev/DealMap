@@ -23,10 +23,8 @@ function emptyProductDraft(): ProductDraft {
   return {
     category_id: "",
     name: "",
-    name_lt: "",
     unit: "kg",
     barcode: "",
-    description: "",
   };
 }
 
@@ -67,7 +65,7 @@ export default function AddDealContent() {
   const [description, setDescription] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
-  const [expiresAt, setExpiresAt] = useState(() => getDateAfterDays(7));
+  const [expiresAt, setExpiresAt] = useState("");
 
   const api = import.meta.env.VITE_API_URL;
 
@@ -213,21 +211,14 @@ export default function AddDealContent() {
       ? {
           exists: true,
           id: productSearch.selectedProduct.id,
-          unit: productDraft.unit,
         }
       : {
           exists: false,
           category_id: productDraft.category_id,
           name: productDraft.name.trim(),
-          ...(productDraft.name_lt.trim()
-            ? { name_lt: productDraft.name_lt.trim() }
-            : {}),
           unit: productDraft.unit,
           ...(productDraft.barcode.trim()
             ? { barcode: productDraft.barcode.trim() }
-            : {}),
-          ...(productDraft.description.trim()
-            ? { description: productDraft.description.trim() }
             : {}),
         };
 
@@ -237,7 +228,7 @@ export default function AddDealContent() {
       title: title.trim(),
       description: description.trim() || null,
       starts_at: getToday(),
-      expires_at: expiresAt,
+      expires_at: expiresAt || null,
       original_price: original.toFixed(2),
       discounted_price: discounted.toFixed(2),
       discount_percent: discountPercent,
@@ -257,6 +248,7 @@ export default function AddDealContent() {
       );
 
       setSuccess(data.message || "Offer added successfully.");
+      setStoreId("");
       productSearch.reset();
       setProductDraft((draft) => ({
         ...emptyProductDraft(),
@@ -267,7 +259,7 @@ export default function AddDealContent() {
       setDescription("");
       setOriginalPrice("");
       setDiscountedPrice("");
-      setExpiresAt(getDateAfterDays(7));
+      setExpiresAt("");
     } catch (submitError: unknown) {
       setError(
         submitError instanceof Error
