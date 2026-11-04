@@ -200,9 +200,9 @@ class OffersController extends Controller
             'product.name' => 'required_if_declined:product.exists|string|max:40|min:3',
             'product.unit' => 'required_if_declined:product.exists|string|in:kg,l,vnt',
             'product.barcode' => 'nullable|string|max:13',
-            'store_id' => 'required|string|uuid|exists:stores,id',
-            'starts_at' => ['required', 'date_format:Y-m-d', Rule::date()->equals(today())],
-            'expires_at' => ['nullable', 'date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
+            'store_id' => 'required|string|uuid:4|exists:stores,id',
+            'starts_at' => ['required', 'date_format:Y-m-d', Rule::date()->between(today()->subDays(7), today()->addDays(7))],
+            'expires_at' => ['date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
             'original_price' => 'required|decimal:2|min:0.1',
             'discounted_price' => 'required_if_declined:discount_percent|decimal:2|min:0.1',
             'discount_percent' => 'required_if_declined:discount_price|integer|min:1|max:100'
