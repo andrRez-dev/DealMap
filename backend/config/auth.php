@@ -100,6 +100,12 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        'api_clients' => [
+            'provider' => 'api_clients',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60
+        ]
     ],
 
     /*
