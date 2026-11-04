@@ -87,7 +87,7 @@ class OffersController extends Controller
         $request->merge(['id' => $request->route('id')]);
 
         $validated = $request->validate([
-            'id' => "required|uuid:4|exists:stores,id",
+            'id' => "required|uuid|exists:stores,id",
         ]);
 
         $offers_list = Offer::where('store_id', $validated['id'])->where('is_active', true)->limit(10)->get();
@@ -195,7 +195,7 @@ class OffersController extends Controller
         $request->validate([
             'product' => 'required|array',
             'product.exists' => 'required|boolean',
-            'product.id' => 'required_if_accepted:product.exists|uuid:4|exists:products,id',
+            'product.id' => 'required_if_accepted:product.exists|uuid|exists:products,id',
             'product.category_id' => 'required_if_declined:product.exists|string|exists:categories,id',
             'product.name' => 'required_if_declined:product.exists|string|max:40|min:3',
             'product.unit' => 'required_if_declined:product.exists|string|in:kg,l,vnt',
