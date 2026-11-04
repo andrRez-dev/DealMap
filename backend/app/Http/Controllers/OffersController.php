@@ -253,4 +253,32 @@ class OffersController extends Controller
             ]
         ], 200);
     }
+
+    /**
+     * Setting offer inactive for owner of the offer
+     *
+     */
+    public function setInactive(Request $request, ClientTokenResolver $tokenResolver) : JsonResponse{
+        $user = $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
+        
+        $validated = $request->validate([
+            'offer_id' => 'required|uuid:7|string',
+        ]);
+        $offerId = $validated['offer_id'];
+
+        $offerRecord = Offer::findOrFail($offerId);
+
+        if($offerRecord->user != $user){
+            return response()->json([
+                'message' => 'Access denied. You are not owner of the offer.'
+            ], 401);
+        }
+        $offerRecord->is_active = false;
+        $offerRecord->save();
+    
+        return response()->json([
+            'message' => 'Successfull. Offer is inactive'
+        ], 200);
+    }
 }

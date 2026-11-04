@@ -25,13 +25,11 @@ class ProductsController extends Controller
             ->select([
                 'id',
                 'name',
-                'name_lt',
                 'category_id',
             ])
             ->where(function ($builder) use ($query) {
                 $builder
-                    ->where('name', 'ilike', $query . '%')
-                    ->orWhere('name_lt', 'ilike', $query . '%');
+                    ->where('name', 'ilike', $query . '%');
             })
             ->orderBy('name')
             ->limit(10)
