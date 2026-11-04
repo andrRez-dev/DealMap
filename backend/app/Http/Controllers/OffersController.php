@@ -87,7 +87,7 @@ class OffersController extends Controller
         $request->merge(['id' => $request->route('id')]);
 
         $validated = $request->validate([
-            'id' => "required|uuid:4|exists:stores,id",
+            'id' => "required|uuid|exists:stores,id",
         ]);
 
         $offers_list = Offer::where('store_id', $validated['id'])->where('is_active', true)->limit(10)->get();
@@ -195,14 +195,14 @@ class OffersController extends Controller
         $request->validate([
             'product' => 'required|array',
             'product.exists' => 'required|boolean',
-            'product.id' => 'required_if_accepted:product.exists|uuid:4|exists:products,id',
+            'product.id' => 'required_if_accepted:product.exists|uuid|exists:products,id',
             'product.category_id' => 'required_if_declined:product.exists|string|exists:categories,id',
             'product.name' => 'required_if_declined:product.exists|string|max:40|min:3',
             'product.unit' => 'required_if_declined:product.exists|string|in:kg,l,vnt',
             'product.barcode' => 'nullable|string|max:13',
-            'store_id' => 'required|string|uuid:4|exists:stores,id',
+            'store_id' => 'required|string|uuid|exists:stores,id',
             'starts_at' => ['required', 'date_format:Y-m-d', Rule::date()->equals(today())],
-            'expires_at' => ['date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
+            'expires_at' => ['nullable', 'date_format:Y-m-d', Rule::date()->beforeOrEqual(today()->addDays(30))],
             'original_price' => 'required|decimal:2|min:0.1',
             'discounted_price' => 'required_if_declined:discount_percent|decimal:2|min:0.1',
             'discount_percent' => 'required_if_declined:discount_price|integer|min:1|max:100'
