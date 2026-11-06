@@ -24,7 +24,16 @@ class StoresController extends Controller
 
         foreach ($stores_list as $store) {
             if($store->is_active){
-                $stores_response[] = $store;
+                $stores_response[] = [
+                    'name' => $store->name,
+                    'brand' => $store->brand,
+                    'address' => $store->address,
+                    'city' => $store->city,
+                    'latitude' => $store->latitude,
+                    'longitude' => $store->longitude,
+                    'phone' => $store->phone,
+                    'website_url' => $store->website
+                ];
             }
         }
 
