@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\UsersController;
+use App\Models\Offer;
 use App\Support\ClientTokenResolver;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
@@ -47,13 +48,19 @@ Route::get('/user/change-email', [UsersController::class, 'verifyNewEmail'])
 ->middleware('signed')->name('email.change.confirm');;
 
 
-Route::get('/offers', [OffersController::class, 'index'])
+Route::get('/offers/all', [OffersController::class, 'index'])
+->middleware('auth:sanctum');
+
+Route::get('/offers/by-category', [OffersController::class, 'offers_by_category'])
+->middleware('auth:sanctum');
+
+Route::get('/offers/by-radius', [OffersController::class, 'offers_by_radius'])
 ->middleware('auth:sanctum');
 
 Route::get('/offers/form', [OffersController::class, 'form'])
 ->middleware('auth:sanctum');
 
-Route::get('/offers/{id}', [OffersController::class, 'offers_by_store'])
+Route::get('/offers/by-store/{id}', [OffersController::class, 'offers_by_store'])
 ->middleware('auth:sanctum');
 
 Route::post('/offers/create', [OffersController::class, 'store'])
@@ -68,7 +75,7 @@ Route::get('/products/search', [ProductsController::class, 'search'])
 
 
 Route::post('/offers/{offer}/votes', [VotesController::class, 'store'])
-    ->middleware('auth:sanctum');
+->middleware('auth:sanctum');
 
 
 Route::get('/stores/get', [StoresController::class, 'getStores'])

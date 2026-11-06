@@ -11,8 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 use Dedoc\Scramble\Attributes\BodyParameter;
+use Dedoc\Scramble\Attributes\QueryParameter;
 
 class OffersController extends Controller
 {
@@ -76,7 +78,7 @@ class OffersController extends Controller
     }
 
     /**
-     * Getting offer by store
+     * Getting offers by store
      *
      */
 
@@ -87,10 +89,25 @@ class OffersController extends Controller
         $request->merge(['id' => $request->route('id')]);
 
         $validated = $request->validate([
-            'id' => "required|uuid|exists:stores,id",
+            'id' => "required|exists:stores,id",
         ]);
 
-        $offers_list = Offer::where('store_id', $validated['id'])->where('is_active', true)->limit(10)->get();
+        $offers_list = Offer::where('store_id', $validated['id'])
+                            ->with(['product:id,name', 'store:id, name, address', 'user:name'])
+                            ->where('is_active', true)
+                            ->limit(10)
+                            ->get()
+                            ->map(fn ($offer) => [
+                                'product_name' => $offer->product?->name,
+                                'store_name' => $offer->store?->name,
+                                'store_address' => $offer->store?->address,
+                                'created_by' => $offer->user?->name,
+                                'original_price' => $offer->original_price,
+                                'discounted_price' => $offer->discounted_price,
+                                'discount_percent' => $offer->discount_percent,
+                                'starts_at' => $offer->starts_at,
+                                'expires_at' => $offer->expires_at
+                            ]);
 
         return response()->json([
             'message' => 'Successfull',
@@ -98,6 +115,115 @@ class OffersController extends Controller
         ], 200);
     }
 
+    /**
+     * Getting offers by category
+     */
+
+    public function offers_by_category(Request $request, ClientTokenResolver $tokenResolver){
+        $user = $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
+
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id'
+        ]);
+
+        $offers_list = Offer::query()
+                            ->whereHas('product', function($query) use ($validated){
+                                $query->where('category_id' , $validated['category_id']);
+                            })
+                            ->where('is_active', true)
+                            ->with(['product:id,name,category_id', 'store:id,name,address', 'user:id,name'])
+                            ->limit(20)
+                            ->get()
+                            ->map(fn ($offer) => [
+                                'product_name' => $offer->product?->name,
+                                'store_name' => $offer->store?->name,
+                                'store_address' => $offer->store?->address,
+                                'created_by' => $offer->user?->name,
+                                'original_price' => $offer->original_price,
+                                'discounted_price' => $offer->discounted_price,
+                                'discount_percent' => $offer->discount_percent,
+                                'starts_at' => $offer->starts_at,
+                                'expires_at' => $offer->expires_at
+                            ]);
+
+        return response()->json([
+            'message' => 'Successfull',
+            'offers' => $offers_list
+        ], 200);
+    }
+
+    /**
+     * Getting offers in radius
+     */
+
+    #[QueryParameter(
+        'radius',
+        description: 'In kilometers',
+        format: 'number',
+        required: true,
+    )]
+
+    public function offers_by_radius(Request $request, ClientTokenResolver $tokenResolver){
+        $user = $tokenResolver->resolveUser($request, required: true)
+            ?? abort(401, 'A user access token is required.');
+
+        $offers_response = [];
+
+        $validator = Validator::make($request->all(), [
+            'longitude' => 'required|decimal:3',
+            'latitude' => 'required|decimal:3',
+            'radius' => 'required|min:1|max:10'
+        ]);
+
+        $validator->after(function ($validator) use ($request){
+            $lat = $request->input('latitude');
+            $lng = $request->input('longitude');
+
+            $inLat = $lat >= 55.610 && $lat <= 55.835;
+            $inLng = $lng >= 21.050 && $lng <= 21.230;
+            if(!$inLat || !$inLng){
+                $validator->errors()->add('location', 'Specified coordinates is out of the workzone');
+            }
+        });
+
+        $validated = $validator->validate();
+        $longitude = $validated['longitude'];
+        $latitude = $validated['latitude'];
+        $radiusInMeters = $validated['radius'] * 1000;
+
+        $offers_response = Offer::query()
+            ->with(['product:id,name', 'store:id,name,address', 'user:id,name'])
+            ->whereHas('store', function($query) use ($latitude, $longitude, $radiusInMeters){
+                
+                $query->whereRaw("
+                    ST_DWithin(
+                        ST_SetSRID(ST_MakePoint(longitude::float, latitude::float), 4326)::geography,
+                        ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography,
+                        ?
+                    )
+                ", [$longitude, $latitude, $radiusInMeters]);
+            })
+            ->where('is_active', true)
+            ->get()
+            ->map(fn ($offer) => [
+                'product_name' => $offer->product?->name,
+                'store_name' => $offer->store?->name,
+                'store_address' => $offer->store?->address,
+                'created_by' => $offer->user?->name,
+                'original_price' => $offer->original_price,
+                'discounted_price' => $offer->discounted_price,
+                'discount_percent' => $offer->discount_percent,
+                'starts_at' => $offer->starts_at,
+                'expires_at' => $offer->expires_at
+            ]);
+        
+        return response()->json([
+            'message' => 'Successfull',
+            'offers' => $offers_response
+        ], 200);
+    }
+    
 
     /**
      * Data for displaying offer form
