@@ -55,6 +55,8 @@ class OffersController extends Controller
                 $vote = $userId === null ? null : $offer->votes->first();
 
                 return [
+                    'store_id' => $offer->store_id,
+                    'user_id' => $offer->user_id,
                     'discounted_price' => $offer->discounted_price,
                     'discount_percent' => $offer->discount_percent,
                     'original_price' => $offer->original_price,
