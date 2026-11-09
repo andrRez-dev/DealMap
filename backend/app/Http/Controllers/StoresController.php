@@ -18,27 +18,23 @@ class StoresController extends Controller
         $user = $tokenResolver->resolveUser($request, required: true)
             ?? abort(401, 'A user access token is required.');
         
-        $stores_list = Store::all();
-        
-        $stores_response = [];
-
-        foreach ($stores_list as $store) {
-            if($store->is_active){
-                $stores_response[] = [
-                    'name' => $store->name,
-                    'brand' => $store->brand,
-                    'address' => $store->address,
-                    'city' => $store->city,
-                    'latitude' => $store->latitude,
-                    'longitude' => $store->longitude,
-                    'phone' => $store->phone,
-                    'website_url' => $store->website
-                ];
-            }
-        }
+        $stores = Store::query()
+            ->where('is_active', true)
+            ->get([
+                'id',
+                'name',
+                'brand',
+                'address',
+                'city',
+                'latitude',
+                'longitude',
+                'phone',
+                'website as website_url',
+                'is_active'
+            ]);
 
         return response()->json([
-            'stores' => $stores_response
+            'stores' => $stores
         ], 200);
     }
 }
