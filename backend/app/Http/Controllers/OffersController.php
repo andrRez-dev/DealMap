@@ -93,7 +93,7 @@ class OffersController extends Controller
         ]);
 
         $offers_list = Offer::where('store_id', $validated['id'])
-                            ->with(['product:id,name', 'store:id, name, address', 'user:name'])
+                            ->with(['product:id,name', 'store:id,name,address', 'user:name'])
                             ->where('is_active', true)
                             ->limit(10)
                             ->get()

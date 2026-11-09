@@ -48,7 +48,7 @@ Route::get('/user/change-email', [UsersController::class, 'verifyNewEmail'])
 ->middleware('signed')->name('email.change.confirm');;
 
 
-Route::get('/offers/all', [OffersController::class, 'index'])
+Route::get('/offers', [OffersController::class, 'index'])
 ->middleware('auth:sanctum');
 
 Route::get('/offers/by-category', [OffersController::class, 'offers_by_category'])
