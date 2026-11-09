@@ -56,6 +56,8 @@ class OffersController extends Controller
 
                 return [
                     'id' => $offer->id,
+                    'store_id' => $offer->store_id,
+                    'user_id' => $offer->user_id,
                     'discounted_price' => $offer->discounted_price,
                     'discount_percent' => $offer->discount_percent,
                     'original_price' => $offer->original_price,
