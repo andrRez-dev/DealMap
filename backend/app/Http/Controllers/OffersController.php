@@ -55,7 +55,11 @@ class OffersController extends Controller
                 $vote = $userId === null ? null : $offer->votes->first();
 
                 return [
-                    ...$offer->attributesToArray(),
+                    'discounted_price' => $offer->discounted_price,
+                    'discount_percent' => $offer->discount_percent,
+                    'original_price' => $offer->original_price,
+                    'starts_at' => $offer->starts_at,
+                    'expires_at' => $offer->expires_at,
                     'product_name' => $offer->product->name,
                     'product_unit' => $offer->product->unit,
                     'store_name' => $offer->store->name,
@@ -233,23 +237,17 @@ class OffersController extends Controller
         $user = $tokenResolver->resolveUser($request, required: true)
             ?? abort(401, 'A user access token is required.');
         
-        $categories_list = Category::all();
-
-        $categories_response = [];
-        
-        foreach ($categories_list as $category) {
-            if($category->is_active){
-                $categories_response[] = [
-                'id' => $category->id,
-                'name' => $category->name,
-                'name_lt' => $category->name_lt,
-                'sort_order' => $category->sort_order,
-                ];
-            }
-        }
+        $categories_list = Category::query()
+            ->where('is_active', true)
+            ->get([
+                'id',
+                'name',
+                'name_lt',
+                'sort_order'
+            ]);
         
         return response()->json([
-            'categories' => $categories_response,
+            'categories' => $categories_list,
         ], 200);
     }
 
