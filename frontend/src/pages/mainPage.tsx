@@ -46,7 +46,7 @@ export default function MainPage() {
         <Outlet />
       </div>
 
-      <footer>
+      <footer className="relative">
         <div className="flex flex-row min-h-22 w-full bg-white items-center justify-center gap-25">
           <Link
             to="/main/home"
