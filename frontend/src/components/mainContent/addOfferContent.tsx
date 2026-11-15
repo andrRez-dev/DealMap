@@ -3,10 +3,11 @@ import { useSearchParams } from "react-router-dom";
 import { getRequestHeaders, readResponse } from "../shared/api";
 import { fetchStores } from "../shared/getStores";
 import type { Store } from "../shared/types";
-import OfferFields from "./addDeal/OfferFields";
-import ProductFields from "./addDeal/ProductFields";
-import useProductSearch from "./addDeal/useProductSearch";
-import type { Category, Product, ProductDraft } from "./addDeal/types";
+import OfferFields from "./addOffer/OfferFields";
+import ProductFields from "./addOffer/ProductFields";
+import useProductSearch from "./addOffer/useProductSearch";
+import type { Product, ProductDraft } from "./addOffer/types";
+import { type Category } from "../shared/types";
 
 type CategoriesResponse = {
   categories?: Category[];

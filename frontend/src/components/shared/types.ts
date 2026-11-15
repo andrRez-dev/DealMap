@@ -32,3 +32,10 @@ export type Offer = {
     created_at: string;
   } | null;
 };
+
+export type Category = {
+  id: number | string;
+  name: string;
+  name_lt: string | null;
+  sort_order: number | string;
+};

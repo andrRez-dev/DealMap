@@ -1,10 +1,3 @@
-export type Category = {
-  id: number | string;
-  name: string;
-  name_lt: string | null;
-  sort_order: number | string;
-};
-
 export type Product = {
   id: string;
   name: string;

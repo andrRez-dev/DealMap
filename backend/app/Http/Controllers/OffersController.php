@@ -156,12 +156,17 @@ class OffersController extends Controller
      * Getting offers by category
      */
 
-    public function offers_by_category(Request $request, ClientTokenResolver $tokenResolver){
+    public function offers_by_category(
+        Request $request,
+        string $category_id,
+        ClientTokenResolver $tokenResolver
+    ){
         $user = $tokenResolver->resolveUser($request, required: true)
             ?? abort(401, 'A user access token is required.');
 
+        $request->merge(['category_id' => $category_id]);
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id'
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $offers_list = Offer::query()
