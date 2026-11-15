@@ -97,22 +97,54 @@ class OffersController extends Controller
             'id' => "required|exists:stores,id",
         ]);
 
-        $offers_list = Offer::where('store_id', $validated['id'])
-                            ->with(['product:id,name', 'store:id,name,address', 'user:name'])
+        $userId = $user->id;
+        $offers_list = Offer::query()
+                            ->where('store_id', $validated['id'])
+                            ->with([
+                                'product:id,name,unit',
+                                'store:id,name,brand,address,city',
+                                'votes' => fn (HasMany $votes) => $votes
+                                    ->where('user_id', $userId)
+                                    ->select(['offer_id', 'user_id', 'vote', 'created_at']),
+                            ])
+                            ->withCount([
+                                'votes as works_votes' => fn (Builder $query) => $query->where('vote', 'works'),
+                                'votes as expired_votes' => fn (Builder $query) => $query->where('vote', 'expired'),
+                            ])
                             ->where('is_active', true)
+                            ->where(function (Builder $query): void {
+                                $query->whereNull('expires_at')
+                                    ->orWhereDate('expires_at', '>=', today());
+                            })
                             ->limit(10)
                             ->get()
-                            ->map(fn ($offer) => [
-                                'product_name' => $offer->product?->name,
-                                'store_name' => $offer->store?->name,
-                                'store_address' => $offer->store?->address,
-                                'created_by' => $offer->user?->name,
-                                'original_price' => $offer->original_price,
-                                'discounted_price' => $offer->discounted_price,
-                                'discount_percent' => $offer->discount_percent,
-                                'starts_at' => $offer->starts_at,
-                                'expires_at' => $offer->expires_at
-                            ]);
+                            ->map(function (Offer $offer): array {
+                                $vote = $offer->votes->first();
+
+                                return [
+                                    'id' => $offer->id,
+                                    'title' => $offer->title,
+                                    'description' => $offer->description,
+                                    'original_price' => $offer->original_price,
+                                    'discounted_price' => $offer->discounted_price,
+                                    'discount_percent' => $offer->discount_percent,
+                                    'starts_at' => $offer->starts_at,
+                                    'expires_at' => $offer->expires_at,
+                                    'product_name' => $offer->product->name,
+                                    'product_unit' => $offer->product->unit,
+                                    'store_name' => $offer->store->name,
+                                    'store_brand' => $offer->store->brand,
+                                    'store_address' => $offer->store->address,
+                                    'store_city' => $offer->store->city,
+                                    'works_votes' => $offer->works_votes,
+                                    'expired_votes' => $offer->expired_votes,
+                                    'my_vote' => $vote === null ? null : [
+                                        'offer_id' => $vote->offer_id,
+                                        'vote' => $vote->vote,
+                                        'created_at' => $vote->created_at,
+                                    ],
+                                ];
+                            });
 
         return response()->json([
             'message' => 'Successfull',
