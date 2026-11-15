@@ -18,15 +18,6 @@ export function getRequestHeaders(): HeadersInit {
   };
 }
 
-function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "message" in value &&
-    (typeof value.message === "string" || value.message === undefined)
-  );
-}
-
 export async function readResponse<T>(
   response: Response,
   action: string,
@@ -45,4 +36,13 @@ export async function readResponse<T>(
   }
 
   return data as T;
+}
+
+function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "message" in value &&
+    (typeof value.message === "string" || value.message === undefined)
+  );
 }

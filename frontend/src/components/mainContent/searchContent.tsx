@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getRequestHeaders, readResponse } from "../shared/api";
 import { Clock3, MapPin, Tag } from "lucide-react";
+import Vote from "./vote/vote";
 
 type Offer = {
   id: string;
@@ -17,8 +18,8 @@ type Offer = {
   store_brand: string | null;
   store_address: string | null;
   store_city: string;
-  works_votes: string | number;
-  expired_votes: string | number;
+  works_votes: number;
+  expired_votes: number;
   my_vote: {
     offer_id: string;
     vote: "works" | "expired";
@@ -181,6 +182,12 @@ export default function SearchContent() {
                     .join(", ")}
                 </span>
               </div>
+              <Vote
+                offerId={offer.id}
+                myVote={offer.my_vote?.vote ?? null}
+                worksVotes={offer.works_votes}
+                expiredVotes={offer.expired_votes}
+              />
             </li>
           ))}
         </ul>
