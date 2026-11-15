@@ -143,6 +143,13 @@ export default function MapContent() {
               >
                 Add offer
               </Link>
+              <Link
+                to={`/main/search?store=${encodeURIComponent(store.id)}`}
+                className="ml-2 mt-2 inline-block rounded bg-green-700 px-3 py-1.5 text-sm font-medium text-white no-underline hover:bg-green-800 cursor-pointer"
+                style={{ color: "#fff" }}
+              >
+                See offers
+              </Link>
             </Popup>
           </CircleMarker>
         ))}

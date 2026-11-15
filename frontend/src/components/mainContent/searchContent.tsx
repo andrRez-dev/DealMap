@@ -6,13 +6,14 @@ import OfferCard from "./search/OfferCard";
 import { type Store } from "../shared/types";
 import { fetchStores } from "../shared/getStores";
 import StoreFilter from "./search/storeFilter";
+import { useSearchParams } from "react-router-dom";
 
 export default function SearchContent() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
-  const [selectedStoreId, setSelectedStoreId] = useState(
-    () => localStorage.getItem("selectedStoreId") ?? "",
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedStoreId =
+    searchParams.get("store") ?? localStorage.getItem("selectedStoreId") ?? "";
 
   const [isOffersLoading, setIsOffersLoading] = useState(true);
   const [offersError, setOffersError] = useState("");
@@ -133,12 +134,31 @@ export default function SearchContent() {
             <div className="relative">
               <select
                 id="offer-store-filter"
-                className="w-full appearance-none rounded-xl border border-[#dfe7dc] bg-[#fbfcfa] py-2.5 pl-3 pr-10 text-sm font-medium text-[#26332a] outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-700/15 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full truncate appearance-none rounded-xl border border-[#dfe7dc] bg-[#fbfcfa] py-2.5 pl-3 pr-10 text-sm font-medium text-[#26332a] outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-700/15 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={
                   isStoresLoading || Boolean(storesError) || stores.length === 0
                 }
                 value={selectedStoreId}
-                onChange={(event) => setSelectedStoreId(event.target.value)}
+                onChange={(event) => {
+                  const storeId = event.target.value;
+
+                  if (storeId) {
+                    localStorage.setItem("selectedStoreId", storeId);
+                    setSearchParams((current) => {
+                      const next = new URLSearchParams(current);
+                      next.set("storeId", storeId);
+                      return next;
+                    });
+                    //reset the values when user chooses the "All stores" option
+                  } else {
+                    localStorage.removeItem("selectedStoreId");
+                    setSearchParams((current) => {
+                      const next = new URLSearchParams(current);
+                      next.delete("store");
+                      return next;
+                    });
+                  }
+                }}
                 aria-describedby={
                   storesError || isStoresLoading || stores.length === 0
                     ? "offer-store-filter-help"
