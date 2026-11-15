@@ -51,7 +51,7 @@ Route::get('/user/change-email', [UsersController::class, 'verifyNewEmail'])
 Route::get('/offers', [OffersController::class, 'index'])
 ->middleware('auth:sanctum');
 
-Route::get('/offers/by-category', [OffersController::class, 'offers_by_category'])
+Route::get('/offers/by-category/{category_id}', [OffersController::class, 'offers_by_category'])
 ->middleware('auth:sanctum');
 
 Route::get('/offers/by-radius', [OffersController::class, 'offers_by_radius'])
