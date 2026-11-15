@@ -1,15 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getRequestHeaders, readResponse } from "../shared/api";
+import { fetchStores } from "../shared/getStores";
 import type { Store } from "../shared/types";
 import OfferFields from "./addDeal/OfferFields";
 import ProductFields from "./addDeal/ProductFields";
 import useProductSearch from "./addDeal/useProductSearch";
 import type { Category, Product, ProductDraft } from "./addDeal/types";
-
-type StoresResponse = {
-  stores?: Store[];
-};
 
 type CategoriesResponse = {
   categories?: Category[];
@@ -78,31 +75,23 @@ export default function AddDealContent() {
           throw new Error("The API URL is not configured.");
         }
 
-        const headers = getRequestHeaders();
-        const [storesResponse, formResponse] = await Promise.all([
-          fetch(`${api}/api/stores/get`, { headers }),
-          fetch(`${api}/api/offers/form`, { headers }),
+        const [storesData, formResponse] = await Promise.all([
+          fetchStores(),
+          fetch(`${api}/api/offers/form`, {
+            headers: getRequestHeaders(),
+          }),
         ]);
-        const storesData = await readResponse<StoresResponse>(
-          storesResponse,
-          "Unable to load stores",
-        );
         const categoriesData = await readResponse<CategoriesResponse>(
           formResponse,
           "Unable to load categories",
         );
 
-        if (!Array.isArray(storesData.stores)) {
-          throw new Error("The server did not return a list of stores.");
-        }
         if (!Array.isArray(categoriesData.categories)) {
           throw new Error("The server did not return a list of categories.");
         }
 
         if (isCurrent) {
-          const activeStores = storesData.stores.filter(
-            (store) => store.is_active,
-          );
+          const activeStores = storesData.filter((store) => store.is_active);
           setStores(activeStores);
           if (activeStores.some((store) => store.id === preferredStoreId)) {
             setStoreId(preferredStoreId ?? "");
