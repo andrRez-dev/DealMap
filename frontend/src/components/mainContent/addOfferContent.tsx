@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getRequestHeaders, readResponse } from "../shared/api";
 import { fetchStores } from "../shared/getStores";
 import OfferFields from "./addOffer/components/OfferFields";
@@ -70,12 +70,13 @@ function getDateAfterDays(days: number): string {
 //
 //
 
-export default function AddDealContent() {
+export default function AddOfferContent() {
   const [searchParams] = useSearchParams();
   const preferredStoreId = searchParams.get("store");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const queryClient = useQueryClient();
 
   const {
     data: stores = [],
@@ -230,6 +231,9 @@ export default function AddDealContent() {
         response,
         "Unable to create offer",
       );
+
+      // after the successful requerst reset the cache to udate the offer list
+      await queryClient.invalidateQueries({ queryKey: ["offers"] });
 
       setSuccess(data.message || "Offer added successfully.");
       setStoreId("");

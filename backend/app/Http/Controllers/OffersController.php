@@ -27,9 +27,22 @@ class OffersController extends Controller
         $user = $tokenResolver->resolveUser($request, required: true)
             ?? abort(401, 'A user access token is required.');
 
+        $filters = $request->validate([
+            'store_id' => ['sometimes', 'uuid', 'exists:stores,id'],
+            'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
+        ]);
+
         $userId = $user->id;
 
         $offers = Offer::query()
+            ->when(isset($filters['store_id']), function (Builder $query) use ($filters): void {
+                $query->where('store_id', $filters['store_id']);
+            })
+            ->when(isset($filters['category_id']), function (Builder $query) use ($filters): void {
+                $query->whereHas('product', function (Builder $productQuery) use ($filters): void {
+                    $productQuery->where('category_id', $filters['category_id']);
+                });
+            })
             ->with([
                 'product:id,name,unit',
                 'store:id,name,brand,address,city,latitude,longitude',
@@ -55,7 +68,7 @@ class OffersController extends Controller
                 $vote = $userId === null ? null : $offer->votes->first();
 
                 return [
-                    'offer_id' => $offer->id,
+                    'id' => $offer->id,
                     'discounted_price' => $offer->discounted_price,
                     'discount_percent' => $offer->discount_percent,
                     'original_price' => $offer->original_price,
@@ -123,7 +136,7 @@ class OffersController extends Controller
 
 
                                 return [
-                                    'offer_id' => $offer->id,
+                                    'id' => $offer->id,
                                     'discounted_price' => $offer->discounted_price,
                                     'discount_percent' => $offer->discount_percent,
                                     'original_price' => $offer->original_price,
@@ -198,7 +211,7 @@ class OffersController extends Controller
                                 
 
                                 return [
-                                    'offer_id' => $offer->id,
+                                    'id' => $offer->id,
                                     'discounted_price' => $offer->discounted_price,
                                     'discount_percent' => $offer->discount_percent,
                                     'original_price' => $offer->original_price,
