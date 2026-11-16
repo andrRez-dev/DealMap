@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
-import { getRequestHeaders, readResponse } from "../../shared/api";
+import { fetchOffers } from "../../shared/getOffers";
 import { type Offer } from "../../shared/types";
 import OfferCard from "./OfferCard";
 
 type StoreFilterProps = {
   storeId: string;
-};
-
-// endpoint returns the wrapper object
-type StoreOfferResponse = {
-  offers?: Offer[];
 };
 
 export default function StoreFilter({ storeId }: StoreFilterProps) {
@@ -18,7 +13,6 @@ export default function StoreFilter({ storeId }: StoreFilterProps) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const api = import.meta.env.VITE_API_URL;
     // do not update the component's state if the user has navigated away from the page while the request was still in progress
     let isCurrent = true;
 
@@ -28,24 +22,10 @@ export default function StoreFilter({ storeId }: StoreFilterProps) {
 
     async function loadOffers(): Promise<void> {
       try {
-        if (!api) {
-          throw new Error("The API URL is not configured.");
-        }
-
-        const response = await fetch(`${api}/api/offers/by-store/${storeId}`, {
-          headers: getRequestHeaders(),
-        });
-        const data = await readResponse<StoreOfferResponse>(
-          response,
-          "Unable to load offers",
-        );
-
-        if (!Array.isArray(data.offers)) {
-          throw new Error("The server did not return a list of offers.");
-        }
+        const data = await fetchOffers({ storeId });
 
         if (isCurrent) {
-          setOffers(data.offers);
+          setOffers(data);
           setError("");
         }
       } catch (loadError: unknown) {
