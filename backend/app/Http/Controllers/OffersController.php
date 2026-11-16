@@ -55,7 +55,6 @@ class OffersController extends Controller
                 $vote = $userId === null ? null : $offer->votes->first();
 
                 return [
-                    'id' => $offer->id,
                     'offer_id' => $offer->id,
                     'discounted_price' => $offer->discounted_price,
                     'discount_percent' => $offer->discount_percent,
@@ -124,7 +123,6 @@ class OffersController extends Controller
 
 
                                 return [
-                                    'id' => $offer->id,
                                     'offer_id' => $offer->id,
                                     'discounted_price' => $offer->discounted_price,
                                     'discount_percent' => $offer->discount_percent,
@@ -197,10 +195,9 @@ class OffersController extends Controller
                             ->get()
                             ->map(function (Offer $offer) use ($userId): array {
                                 $vote = $userId === null ? null : $offer->votes->first();
-
+                                
 
                                 return [
-                                    'id' => $offer->id,
                                     'offer_id' => $offer->id,
                                     'discounted_price' => $offer->discounted_price,
                                     'discount_percent' => $offer->discount_percent,
