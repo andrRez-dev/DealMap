@@ -1,21 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
 import { fetchOffers } from "../shared/getOffers";
 
-import { type Offer } from "../shared/types";
-
 import OfferCard from "./search/OfferCard";
-import CategoryFilter from "./search/categoryFilter";
-import StoreFilter from "./search/storeFilter";
+import CategoryFilter from "./search/filteredOffers/categoryFilter";
+import StoreFilter from "./search/filteredOffers/storeFilter";
 
 import StoreSelect from "./search/selectors/storeSelect";
 import CategorySelect from "./search/selectors/categorySelect";
 
 export default function SearchContent() {
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [isOffersLoading, setIsOffersLoading] = useState(true);
-  const [offersError, setOffersError] = useState("");
+  const {
+    data: offers = [],
+    isPending: isLoading,
+    error: error,
+  } = useQuery({
+    queryKey: ["offers"],
+    queryFn: () => fetchOffers(),
+  });
 
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedStore =
@@ -24,39 +28,6 @@ export default function SearchContent() {
   const [selectedCategory, setSelectedCategory] = useState(
     () => localStorage.getItem("selectedCategory") ?? "",
   );
-
-  useEffect(() => {
-    // do not update the component's state if the user has navigated away from the page while the request was still in progress
-    let isCurrent = true;
-
-    async function loadOffers(): Promise<void> {
-      try {
-        const data = await fetchOffers();
-
-        if (isCurrent) {
-          setOffers(data);
-          setOffersError("");
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setOffersError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load offers.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsOffersLoading(false);
-        }
-      }
-    }
-
-    void loadOffers();
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
 
   return (
     <section className="h-full flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 overflow-hidden">
@@ -85,7 +56,7 @@ export default function SearchContent() {
           </div>
         </header>
 
-        {!selectedStore && !selectedCategory && isOffersLoading && (
+        {!selectedStore && !selectedCategory && isLoading && (
           <p
             className="rounded-xl border border-[#e3eae0] bg-white p-5 text-sm text-gray-500 shadow-sm"
             role="status"
@@ -94,19 +65,19 @@ export default function SearchContent() {
           </p>
         )}
 
-        {!selectedStore && !selectedCategory && offersError && (
+        {!selectedStore && !selectedCategory && error?.message && (
           <p
             className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
             role="alert"
           >
-            {offersError}
+            {error.message}
           </p>
         )}
 
         {!selectedStore &&
           !selectedCategory &&
-          !isOffersLoading &&
-          !offersError &&
+          !isLoading &&
+          !error?.message &&
           offers.length === 0 && (
             <p className="rounded-xl border border-dashed border-[#d9e3d6] bg-white p-8 text-center text-sm text-gray-500">
               No offers available yet.

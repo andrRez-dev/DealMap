@@ -3,13 +3,20 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { House, Search, MapPinned, Heart, SquarePlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const panelElement = "flex flex-col items-center text-sm gap-1";
 const chosen = "flex flex-col items-center text-sm gap-1 text-green-700";
 
+type MapView = {
+  center: [number, number];
+  zoom: number;
+};
+
 export default function MainPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [mapView, setMapView] = useState<MapView | null>(null);
 
   return (
     <div className="flex flex-col justify-between w-full h-full bg-[#e9eee8]">
@@ -43,7 +50,7 @@ export default function MainPage() {
 
       {/* main content of the page ⬇️  */}
       <div className="min-h-0 flex-1">
-        <Outlet />
+        <Outlet context={{ mapView, setMapView }} />
       </div>
 
       <footer className="relative">

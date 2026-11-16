@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { fetchStores } from "../../../shared/getStores";
-import { type Store } from "../../../shared/types";
 import { StoreIcon, ChevronDown } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type StoreSelectProps = {
   selectedStore: string;
@@ -15,41 +15,14 @@ export default function StoreSelect({
   selectedStore,
   setSearchParams,
 }: StoreSelectProps) {
-  const [stores, setStores] = useState<Store[]>([]);
-  const [isStoresLoading, setIsStoresLoading] = useState(true);
-  const [storesError, setStoresError] = useState("");
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function loadStores(): Promise<void> {
-      try {
-        const data = await fetchStores();
-
-        if (isCurrent) {
-          setStores(data);
-          setStoresError("");
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setStoresError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load stores.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsStoresLoading(false);
-        }
-      }
-    }
-
-    void loadStores();
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
+  const {
+    data: stores = [],
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["stores"],
+    queryFn: () => fetchStores(),
+  });
 
   useEffect(() => {
     if (selectedStore) {
@@ -74,9 +47,7 @@ export default function StoreSelect({
         <select
           id="offer-store-filter"
           className="w-full truncate appearance-none rounded-xl border border-[#dfe7dc] bg-[#fbfcfa] py-2.5 pl-3 pr-10 text-sm font-medium text-[#26332a] outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-700/15 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={
-            isStoresLoading || Boolean(storesError) || stores.length === 0
-          }
+          disabled={isPending || Boolean(error) || stores.length === 0}
           value={selectedStore}
           onChange={(event) => {
             const storeId = event.target.value;
@@ -99,7 +70,7 @@ export default function StoreSelect({
             }
           }}
           aria-describedby={
-            storesError || isStoresLoading || stores.length === 0
+            error || isPending || stores.length === 0
               ? "offer-store-filter-help"
               : undefined
           }
@@ -118,17 +89,17 @@ export default function StoreSelect({
           className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7a857e]"
         />
       </div>
-      {(isStoresLoading || storesError || stores.length === 0) && (
+      {(isPending || error || stores.length === 0) && (
         <p
           id="offer-store-filter-help"
           className={`mt-2 text-xs ${
-            storesError ? "text-red-700" : "text-[#7a857e]"
+            error ? "text-red-700" : "text-[#7a857e]"
           }`}
-          role={storesError ? "alert" : isStoresLoading ? "status" : undefined}
+          role={error ? "alert" : isPending ? "status" : undefined}
         >
-          {isStoresLoading
+          {isPending
             ? "Loading stores…"
-            : storesError || "No active stores are available."}
+            : error?.message || "No active stores are available."}
         </p>
       )}
     </div>

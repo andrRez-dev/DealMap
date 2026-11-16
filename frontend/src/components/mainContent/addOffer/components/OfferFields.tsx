@@ -1,5 +1,5 @@
-import type { Store } from "../../shared/types";
-import { fieldClassName, labelClassName } from "./formStyles";
+import type { Store } from "../../../shared/types";
+import { fieldClassName, labelClassName } from "../formStyles";
 
 type Props = {
   stores: Store[];
