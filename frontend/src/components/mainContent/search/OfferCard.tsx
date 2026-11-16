@@ -1,0 +1,75 @@
+import { Clock3, MapPin, Tag } from "lucide-react";
+import { type Offer } from "../../shared/types";
+import Vote from "./vote";
+
+type Props = {
+  offer: Offer;
+};
+
+export default function OfferCard({ offer }: Props) {
+  return (
+    <li className="flex min-h-32 min-w-0 flex-col justify-between gap-5 rounded-2xl border border-[#e5ebe2] bg-white p-4 shadow-[0_4px_16px_#263c2a0a] transition-shadow hover:shadow-[0_8px_24px_#263c2a12] sm:p-5">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#edf4eb] text-green-800">
+            <Tag aria-hidden="true" className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <h3 className="capitalize wrap-break-words font-semibold text-[#26332a]">
+              {offer.title || offer.product_name}
+            </h3>
+            {offer.title && offer.title !== offer.product_name && (
+              <p className="mt-0.5 text-sm text-[#68766c]">
+                {offer.product_name}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-[#7a857e]">
+              {offer.store_name}
+              {offer.store_brand && offer.store_brand !== offer.store_name
+                ? ` · ${offer.store_brand}`
+                : ""}
+            </p>
+          </div>
+        </div>
+        {offer.discount_percent && Number(offer.discount_percent) > 0 && (
+          <span className="shrink-0 rounded-full bg-[#e8f5e9] px-2.5 py-1 text-xs font-bold text-green-800">
+            −{offer.discount_percent}%
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-2xl font-bold tracking-tight text-[#26332a]">
+            {offer.discounted_price} €
+          </span>
+          {offer.original_price && (
+            <del className="text-sm text-[#9aa49c]">
+              {offer.original_price} €
+            </del>
+          )}
+          <span className="text-xs text-[#7a857e]">/ {offer.product_unit}</span>
+        </div>
+        {offer.expires_at && (
+          <span className="flex items-center gap-1.5 text-xs text-[#7a857e]">
+            <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+            Until {offer.expires_at}
+          </span>
+        )}
+      </div>
+
+      <div className="flex min-w-0 items-center gap-1.5 border-t border-[#edf0eb] pt-3 text-xs text-[#7a857e]">
+        <MapPin aria-hidden="true" className="h-4 w-4 shrink-0" />
+        <span className="wrap-break-words">
+          {[offer.store_address, offer.store_city].filter(Boolean).join(", ")}
+        </span>
+      </div>
+      <Vote
+        offerId={offer.id}
+        myVote={offer.my_vote?.vote ?? null}
+        worksVotes={offer.works_votes}
+        expiredVotes={offer.expired_votes}
+      />
+    </li>
+  );
+}

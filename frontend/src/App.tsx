@@ -5,7 +5,7 @@ import InfoPage from "./pages/infoPage";
 
 import HomeContent from "./components/mainContent/homeContent";
 import SearchContent from "./components/mainContent/searchContent";
-import AddDealContent from "./components/mainContent/addDealContent";
+import AddDealContent from "./components/mainContent/addOfferContent";
 import MapContent from "./components/mainContent/mapContent";
 import FavoriteContent from "./components/mainContent/favoriteContent";
 

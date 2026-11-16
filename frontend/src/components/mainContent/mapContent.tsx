@@ -9,13 +9,9 @@ import {
   ZoomControl,
 } from "react-leaflet";
 import { Link } from "react-router-dom";
-import { getRequestHeaders, readResponse } from "../shared/api";
+import { fetchStores } from "../shared/getStores";
 import type { Store } from "../shared/types";
 import "leaflet/dist/leaflet.css";
-
-type StoresResponse = {
-  stores?: Store[];
-};
 
 type LocatedStore = Store & {
   latitude: number;
@@ -41,7 +37,6 @@ function FitStores({ stores }: { stores: LocatedStore[] }) {
 
 export default function MapContent() {
   const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY;
-  const api = import.meta.env.VITE_API_URL;
   const [stores, setStores] = useState<LocatedStore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,23 +46,8 @@ export default function MapContent() {
 
     async function loadStores(): Promise<void> {
       try {
-        if (!api) {
-          throw new Error("The API URL is not configured.");
-        }
-
-        const response = await fetch(`${api}/api/stores/get`, {
-          headers: getRequestHeaders(),
-        });
-        const data = await readResponse<StoresResponse>(
-          response,
-          "Unable to load stores",
-        );
-
-        if (!Array.isArray(data.stores)) {
-          throw new Error("The server did not return a list of stores.");
-        }
-
-        const locatedStores = data.stores
+        const storesData = await fetchStores();
+        const locatedStores = storesData
           .map((store) => ({
             ...store,
             latitude: Number(store.latitude),
@@ -103,7 +83,7 @@ export default function MapContent() {
     return () => {
       isCurrent = false;
     };
-  }, [api]);
+  }, []);
 
   return (
     <section
@@ -162,6 +142,13 @@ export default function MapContent() {
                 style={{ color: "#fff" }}
               >
                 Add offer
+              </Link>
+              <Link
+                to={`/main/search?store=${encodeURIComponent(store.id)}`}
+                className="ml-2 mt-2 inline-block rounded bg-green-700 px-3 py-1.5 text-sm font-medium text-white no-underline hover:bg-green-800 cursor-pointer"
+                style={{ color: "#fff" }}
+              >
+                See offers
               </Link>
             </Popup>
           </CircleMarker>
