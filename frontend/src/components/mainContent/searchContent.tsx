@@ -1,176 +1,33 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
-import { ChevronDown, Store as StoreIcon, Tags } from "lucide-react";
-
-import { getRequestHeaders, readResponse } from "../shared/api";
-import { fetchStores } from "../shared/getStores";
-
-import { type Offer } from "../shared/types";
-import { type Store } from "../shared/types";
-import { type Category } from "../shared/types";
+import { fetchOffers } from "../shared/getOffers";
 
 import OfferCard from "./search/OfferCard";
-import CategoryFilter from "./search/categoryFilter";
-import StoreFilter from "./search/storeFilter";
+import CategoryFilter from "./search/filteredOffers/categoryFilter";
+import StoreFilter from "./search/filteredOffers/storeFilter";
 
-type CategoriesResponse = {
-  categories?: Category[];
-};
+import StoreSelect from "./search/selectors/storeSelect";
+import CategorySelect from "./search/selectors/categorySelect";
 
 export default function SearchContent() {
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const {
+    data: offers = [],
+    isPending: isLoading,
+    error: error,
+  } = useQuery({
+    queryKey: ["offers"],
+    queryFn: () => fetchOffers(),
+  });
 
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedStore =
     searchParams.get("store") ?? localStorage.getItem("selectedStore") ?? "";
+
   const [selectedCategory, setSelectedCategory] = useState(
     () => localStorage.getItem("selectedCategory") ?? "",
   );
-
-  const [isOffersLoading, setIsOffersLoading] = useState(true);
-  const [offersError, setOffersError] = useState("");
-  const [isStoresLoading, setIsStoresLoading] = useState(true);
-  const [storesError, setStoresError] = useState("");
-  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
-  const [categoriesError, setCategoriesError] = useState("");
-
-  const api = import.meta.env.VITE_API_URL;
-
-  useEffect(() => {
-    // do not update the component's state if the user has navigated away from the page while the request was still in progress
-    let isCurrent = true;
-
-    async function loadOffers(): Promise<void> {
-      try {
-        if (!api) {
-          throw new Error("The API URL is not configured.");
-        }
-
-        const response = await fetch(`${api}/api/offers`, {
-          headers: getRequestHeaders(),
-        });
-        const data = await readResponse<Offer[]>(
-          response,
-          "Unable to load offers",
-        );
-
-        if (!Array.isArray(data)) {
-          throw new Error("The server did not return a list of offers.");
-        }
-
-        if (isCurrent) {
-          setOffers(data);
-          setOffersError("");
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setOffersError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load offers.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsOffersLoading(false);
-        }
-      }
-    }
-
-    void loadOffers();
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function loadStores(): Promise<void> {
-      try {
-        const data = await fetchStores();
-
-        if (isCurrent) {
-          setStores(data);
-          setStoresError("");
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setStoresError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load stores.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsStoresLoading(false);
-        }
-      }
-    }
-
-    void loadStores();
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function loadCatagories(): Promise<void> {
-      try {
-        if (!api) {
-          throw new Error("The API URL is not configured.");
-        }
-
-        const response = await fetch(`${api}/api/offers/form`, {
-          headers: getRequestHeaders(),
-        });
-        const data = await readResponse<CategoriesResponse>(
-          response,
-          "Unable to load categories",
-        );
-
-        if (!Array.isArray(data.categories)) {
-          throw new Error("The server did not return a list of categories.");
-        }
-
-        if (isCurrent) {
-          setCategories(data.categories);
-          setCategoriesError("");
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setCategoriesError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load categories.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsCategoriesLoading(false);
-        }
-      }
-    }
-
-    void loadCatagories();
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (selectedStore) {
-      localStorage.setItem("selectedStore", selectedStore);
-    } else {
-      localStorage.removeItem("selectedStore");
-    }
-  }, [selectedStore]);
 
   return (
     <section className="h-full flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 overflow-hidden">
@@ -186,165 +43,20 @@ export default function SearchContent() {
           </div>
 
           <div className="flex flex-row gap-5">
-            {/* STORE FILTER */}
-            <div className="w-70 rounded-2xl border border-[#e5ebe2] bg-white p-2 shadow-[0_4px_16px_#263c2a0a]">
-              <label
-                htmlFor="offer-store-filter"
-                className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#68766c]"
-              >
-                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#edf4eb] text-green-800">
-                  <StoreIcon aria-hidden="true" className="h-4 w-4" />
-                </span>
-                Filter offers by store
-              </label>
-              <div className="relative">
-                <select
-                  id="offer-store-filter"
-                  className="w-full truncate appearance-none rounded-xl border border-[#dfe7dc] bg-[#fbfcfa] py-2.5 pl-3 pr-10 text-sm font-medium text-[#26332a] outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-700/15 disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={
-                    isStoresLoading ||
-                    Boolean(storesError) ||
-                    stores.length === 0
-                  }
-                  value={selectedStore}
-                  onChange={(event) => {
-                    const storeId = event.target.value;
-
-                    if (storeId) {
-                      localStorage.setItem("selectedStore", storeId);
-                      setSearchParams((current) => {
-                        const next = new URLSearchParams(current);
-                        next.set("storeId", storeId);
-                        return next;
-                      });
-                      //reset the values when user chooses the "All stores" option
-                    } else {
-                      localStorage.removeItem("selectedStore");
-                      setSearchParams((current) => {
-                        const next = new URLSearchParams(current);
-                        next.delete("store");
-                        return next;
-                      });
-                    }
-                  }}
-                  aria-describedby={
-                    storesError || isStoresLoading || stores.length === 0
-                      ? "offer-store-filter-help"
-                      : undefined
-                  }
-                >
-                  <option value="">All stores</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
-                      {store.address ? ` — ${store.address}` : ""}
-                      {store.brand ? ` (${store.brand})` : ""}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7a857e]"
-                />
-              </div>
-              {(isStoresLoading || storesError || stores.length === 0) && (
-                <p
-                  id="offer-store-filter-help"
-                  className={`mt-2 text-xs ${
-                    storesError ? "text-red-700" : "text-[#7a857e]"
-                  }`}
-                  role={
-                    storesError
-                      ? "alert"
-                      : isStoresLoading
-                        ? "status"
-                        : undefined
-                  }
-                >
-                  {isStoresLoading
-                    ? "Loading stores…"
-                    : storesError || "No active stores are available."}
-                </p>
-              )}
-            </div>
+            <StoreSelect
+              setSearchParams={setSearchParams}
+              selectedStore={selectedStore}
+            />
 
             {/* CATEGORY FILTER  */}
-            <div className="w-70 rounded-2xl border border-[#e5ebe2] bg-white p-2 shadow-[0_4px_16px_#263c2a0a]">
-              <label
-                htmlFor="offer-store-filter"
-                className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#68766c]"
-              >
-                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#edf4eb] text-green-800">
-                  <Tags aria-hidden="true" className="h-4 w-4" />
-                </span>
-                Filter offers by category
-              </label>
-              <div className="relative">
-                <select
-                  id="offer-category-filter"
-                  className="w-full truncate appearance-none rounded-xl border border-[#dfe7dc] bg-[#fbfcfa] py-2.5 pl-3 pr-10 text-sm font-medium text-[#26332a] outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-700/15 disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={
-                    isCategoriesLoading ||
-                    Boolean(categoriesError) ||
-                    categories.length === 0
-                  }
-                  value={selectedCategory}
-                  onChange={(event) => {
-                    const categoryId = event.target.value;
-                    setSelectedCategory(categoryId);
-
-                    if (categoryId) {
-                      localStorage.setItem("selectedCategory", categoryId);
-                    } else {
-                      localStorage.removeItem("selectedCategory");
-                    }
-                  }}
-                  aria-describedby={
-                    categoriesError ||
-                    isCategoriesLoading ||
-                    categories.length === 0
-                      ? "offer-category-filter-help"
-                      : undefined
-                  }
-                >
-                  <option value="">All categories</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7a857e]"
-                />
-              </div>
-              {(isCategoriesLoading ||
-                categoriesError ||
-                categories.length === 0) && (
-                <p
-                  id="offer-category-filter-help"
-                  className={`mt-2 text-xs ${
-                    categoriesError ? "text-red-700" : "text-[#7a857e]"
-                  }`}
-                  role={
-                    categoriesError
-                      ? "alert"
-                      : isCategoriesLoading
-                        ? "status"
-                        : undefined
-                  }
-                >
-                  {isCategoriesLoading
-                    ? "Loading categories…"
-                    : categoriesError || "No categories are available."}
-                </p>
-              )}
-            </div>
+            <CategorySelect
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
           </div>
         </header>
 
-        {!selectedStore && !selectedCategory && isOffersLoading && (
+        {!selectedStore && !selectedCategory && isLoading && (
           <p
             className="rounded-xl border border-[#e3eae0] bg-white p-5 text-sm text-gray-500 shadow-sm"
             role="status"
@@ -353,19 +65,19 @@ export default function SearchContent() {
           </p>
         )}
 
-        {!selectedStore && !selectedCategory && offersError && (
+        {!selectedStore && !selectedCategory && error?.message && (
           <p
             className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
             role="alert"
           >
-            {offersError}
+            {error.message}
           </p>
         )}
 
         {!selectedStore &&
           !selectedCategory &&
-          !isOffersLoading &&
-          !offersError &&
+          !isLoading &&
+          !error?.message &&
           offers.length === 0 && (
             <p className="rounded-xl border border-dashed border-[#d9e3d6] bg-white p-8 text-center text-sm text-gray-500">
               No offers available yet.

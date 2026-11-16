@@ -1,10 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { getRequestHeaders, readResponse } from "../shared/api";
 import { fetchStores } from "../shared/getStores";
-import type { Store } from "../shared/types";
-import OfferFields from "./addOffer/OfferFields";
-import ProductFields from "./addOffer/ProductFields";
+import OfferFields from "./addOffer/components/OfferFields";
+import ProductFields from "./addOffer/components/ProductFields";
 import useProductSearch from "./addOffer/useProductSearch";
 import type { Product, ProductDraft } from "./addOffer/types";
 import { type Category } from "../shared/types";
@@ -12,6 +12,28 @@ import { type Category } from "../shared/types";
 type CategoriesResponse = {
   categories?: Category[];
 };
+
+async function loadCategories(): Promise<Category[]> {
+  const api = import.meta.env.VITE_API_URL;
+
+  if (!api) {
+    throw new Error("The API URL is not configured.");
+  }
+
+  const response = await fetch(`${api}/api/offers/form`, {
+    headers: getRequestHeaders(),
+  });
+  const data = await readResponse<CategoriesResponse>(
+    response,
+    "Unable to load categories",
+  );
+
+  if (!Array.isArray(data.categories)) {
+    throw new Error("The server did not return a list of categories.");
+  }
+
+  return data.categories;
+}
 
 type CreateOfferResponse = {
   message?: string;
@@ -43,20 +65,50 @@ function getDateAfterDays(days: number): string {
   return `${year}-${month}-${day}`;
 }
 
+//
+//
+//
+//
+
 export default function AddDealContent() {
   const [searchParams] = useSearchParams();
   const preferredStoreId = searchParams.get("store");
-  const [stores, setStores] = useState<Store[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoadingForm, setIsLoadingForm] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const {
+    data: stores = [],
+    isPending: isStoresLoading,
+    error: storesError,
+  } = useQuery({
+    queryKey: ["stores"],
+    queryFn: fetchStores,
+    select: (data) => data.filter((store) => store.is_active),
+  });
+  const {
+    data: categories = [],
+    isPending: isCategoriesLoading,
+    error: categoriesError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: loadCategories,
+    select: (data) =>
+      data.toSorted(
+        (first, second) => Number(first.sort_order) - Number(second.sort_order),
+      ),
+  });
+  const isLoadingForm = isStoresLoading || isCategoriesLoading;
+  const formDataError = storesError ?? categoriesError;
+  const errorMessage = error || formDataError?.message;
+
   const [isNewProduct, setIsNewProduct] = useState(false);
   const productSearch = useProductSearch(import.meta.env.VITE_API_URL);
 
-  const [storeId, setStoreId] = useState("");
+  const [storeId, setStoreId] = useState(preferredStoreId ?? "");
+  const selectedStoreId = stores.some((store) => store.id === storeId)
+    ? storeId
+    : "";
   const [productDraft, setProductDraft] =
     useState<ProductDraft>(emptyProductDraft);
   const [title, setTitle] = useState("");
@@ -66,64 +118,6 @@ export default function AddDealContent() {
   const [expiresAt, setExpiresAt] = useState("");
 
   const api = import.meta.env.VITE_API_URL;
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    async function loadFormData(): Promise<void> {
-      try {
-        if (!api) {
-          throw new Error("The API URL is not configured.");
-        }
-
-        const [storesData, formResponse] = await Promise.all([
-          fetchStores(),
-          fetch(`${api}/api/offers/form`, {
-            headers: getRequestHeaders(),
-          }),
-        ]);
-        const categoriesData = await readResponse<CategoriesResponse>(
-          formResponse,
-          "Unable to load categories",
-        );
-
-        if (!Array.isArray(categoriesData.categories)) {
-          throw new Error("The server did not return a list of categories.");
-        }
-
-        if (isCurrent) {
-          const activeStores = storesData.filter((store) => store.is_active);
-          setStores(activeStores);
-          if (activeStores.some((store) => store.id === preferredStoreId)) {
-            setStoreId(preferredStoreId ?? "");
-          }
-          setCategories(
-            categoriesData.categories.toSorted(
-              (first, second) =>
-                Number(first.sort_order) - Number(second.sort_order),
-            ),
-          );
-        }
-      } catch (loadError: unknown) {
-        if (isCurrent) {
-          setError(
-            loadError instanceof Error
-              ? loadError.message
-              : "Unable to load form data.",
-          );
-        }
-      } finally {
-        if (isCurrent) {
-          setIsLoadingForm(false);
-        }
-      }
-    }
-
-    void loadFormData();
-    return () => {
-      isCurrent = false;
-    };
-  }, [api, preferredStoreId]);
 
   function chooseProduct(product: Product): void {
     productSearch.selectProduct(product);
@@ -214,7 +208,7 @@ export default function AddDealContent() {
 
     const body = {
       product,
-      store_id: storeId,
+      store_id: selectedStoreId,
       title: title.trim(),
       description: description.trim() || null,
       starts_at: getToday(),
@@ -269,12 +263,12 @@ export default function AddDealContent() {
           Add a product, store, and discounted price.
         </p>
 
-        {error && (
+        {errorMessage && (
           <p
             className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             role="alert"
           >
-            {error}
+            {errorMessage}
           </p>
         )}
         {success && (
@@ -307,7 +301,7 @@ export default function AddDealContent() {
               />
               <OfferFields
                 stores={stores}
-                storeId={storeId}
+                storeId={selectedStoreId}
                 onStoreIdChange={setStoreId}
                 title={title}
                 onTitleChange={setTitle}
