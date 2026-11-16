@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\OffersController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\StoresController;
@@ -49,6 +50,18 @@ Route::get('/user/change-email', [UsersController::class, 'verifyNewEmail'])
 
 
 Route::get('/offers', [OffersController::class, 'index'])
+->middleware('auth:sanctum');
+
+Route::get('/favorites', [FavoritesController::class, 'index'])
+->middleware('auth:sanctum');
+
+Route::get('/favorites/ids', [FavoritesController::class, 'ids'])
+->middleware('auth:sanctum');
+
+Route::post('/favorites/{offer}', [FavoritesController::class, 'store'])
+->middleware('auth:sanctum');
+
+Route::delete('/favorites/{offer}', [FavoritesController::class, 'destroy'])
 ->middleware('auth:sanctum');
 
 Route::get('/offers/by-category/{category_id}', [OffersController::class, 'offers_by_category'])
