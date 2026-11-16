@@ -72,8 +72,14 @@ class VotesTest extends TestCase
             $table->timestamps();
         });
 
+        Schema::create('categories', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+        });
+
         Schema::create('products', function (Blueprint $table): void {
             $table->uuid('id')->primary();
+            $table->unsignedBigInteger('category_id');
             $table->string('name');
             $table->string('unit')->default('kg');
             $table->timestamps();
@@ -108,6 +114,7 @@ class VotesTest extends TestCase
             Schema::dropIfExists('offers');
             Schema::dropIfExists('products');
             Schema::dropIfExists('stores');
+            Schema::dropIfExists('categories');
             Schema::dropIfExists('users');
             Schema::dropIfExists('api_clients');
         }
@@ -248,6 +255,7 @@ class VotesTest extends TestCase
             ->withHeader('X-Client-Token', $user->createToken('test-user')->plainTextToken)
             ->getJson('/api/offers')
             ->assertOk()
+            ->assertJsonPath('0.id', $offerId)
             ->assertJsonPath('0.product_name', 'Test product')
             ->assertJsonPath('0.product_unit', 'kg')
             ->assertJsonPath('0.store_name', 'Test store')
@@ -279,26 +287,43 @@ class VotesTest extends TestCase
             ->assertJsonPath('0.my_vote', null);
     }
 
+    public function test_offer_list_can_be_filtered_by_store_and_category_together(): void
+    {
+        $categoryId = $this->createCategory();
+        $otherCategoryId = $this->createCategory();
+        $store = $this->createStore();
+
+        $matchingOfferId = $this->createOffer(categoryId: $categoryId, store: $store);
+        $this->createOffer(categoryId: $otherCategoryId, store: $store);
+        $this->createOffer(categoryId: $categoryId);
+
+        $this->actingAs($this->createFrontendClient(), 'sanctum')
+            ->getJson("/api/offers?store_id={$store->id}&category_id={$categoryId}")
+            ->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.id', $matchingOfferId);
+    }
+
     public function test_offer_list_requires_a_frontend_token(): void
     {
         $this->getJson('/api/offers')->assertUnauthorized();
     }
 
-    private function createOffer(?string $expiresAt = null, bool $isActive = true): string
+    private function createOffer(
+        ?string $expiresAt = null,
+        bool $isActive = true,
+        ?int $categoryId = null,
+        ?Store $store = null
+    ): string
     {
+        $categoryId ??= $this->createCategory();
         $product = Product::create([
+            'category_id' => $categoryId,
             'name' => 'Test product',
             'unit' => 'kg',
         ]);
 
-        $store = Store::create([
-            'name' => 'Test store',
-            'brand' => 'Test brand',
-            'address' => 'Test address',
-            'city' => 'Klaipėda',
-            'latitude' => 55.7,
-            'longitude' => 21.1,
-        ]);
+        $store ??= $this->createStore();
 
         $offer = Offer::create([
             'product_id' => $product->id,
@@ -315,6 +340,25 @@ class VotesTest extends TestCase
         ]);
 
         return $offer->id;
+    }
+
+    private function createCategory(): int
+    {
+        return (int) DB::table('categories')->insertGetId([
+            'name' => 'Test category',
+        ]);
+    }
+
+    private function createStore(): Store
+    {
+        return Store::create([
+            'name' => 'Test store',
+            'brand' => 'Test brand',
+            'address' => 'Test address',
+            'city' => 'Klaipėda',
+            'latitude' => 55.7,
+            'longitude' => 21.1,
+        ]);
     }
 
     private function createVote(string $offerId, string $userId, string $vote): void
