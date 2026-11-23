@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getRequestHeaders, readResponse } from "../../shared/api";
-import type { Product } from "./types";
+import type { Product } from "../../shared/types";
 
 type ProductsResponse = {
   products?: Product[];

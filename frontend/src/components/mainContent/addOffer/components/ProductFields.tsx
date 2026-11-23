@@ -1,4 +1,5 @@
-import type { Product, ProductDraft } from "../types";
+import type { ProductDraft } from "../types";
+import { type Product } from "../../../shared/types";
 import { type Category } from "../../../shared/types";
 import type useProductSearch from "../useProductSearch";
 import { fieldClassName, labelClassName } from "../formStyles";
