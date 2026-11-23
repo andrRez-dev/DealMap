@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\VotesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\FavoritesController;
 use App\Models\Offer;
 use App\Support\ClientTokenResolver;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -79,4 +80,14 @@ Route::post('/offers/{offer}/votes', [VotesController::class, 'store'])
 
 
 Route::get('/stores/get', [StoresController::class, 'getStores'])
+->middleware('auth:sanctum');
+
+
+Route::get('/favorites/get', [FavoritesController::class, 'index'])
+->middleware('auth:sanctum');
+
+Route::post('/favorites/store', [FavoritesController::class, 'store'])
+->middleware('auth:sanctum');
+
+Route::delete('/favorites/delete', [FavoritesController::class, 'delete'])
 ->middleware('auth:sanctum');
