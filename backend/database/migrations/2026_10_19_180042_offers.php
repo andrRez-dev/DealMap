@@ -23,9 +23,6 @@ return new class extends Migration
             $table->decimal('discounted_price', 10, 2);
             $table->smallInteger('discount_percent')->nullable();
 
-            $table->string('title', 200)->nullable();
-            $table->text('description')->nullable();
-
             $table->date('starts_at')->nullable();
             $table->date('expires_at')->nullable();
 

@@ -18,10 +18,25 @@ class ClientTokenResolver
             return null;
         }
 
-        $accessToken = PersonalAccessToken::findToken($plainTextToken);
-        $user = $accessToken?->tokenable;
+        $accessToken = PersonalAccessToken::query()
+            ->with('tokenable')
+            ->whereKey(explode('|', $plainTextToken, 2)[0])
+            ->first();
 
-        abort_unless($user instanceof User && $user->is_active, 401, 'The user access token is invalid.');
+        if (
+            ! $accessToken ||
+            ! hash_equals($accessToken->token, hash('sha256', explode('|', $plainTextToken, 2)[1] ?? ''))
+        ) {
+            abort(401, 'The user access token is invalid.');
+        }
+
+        $user = $accessToken->tokenable;
+
+        abort_unless(
+            $user instanceof User && $user->is_active,
+            401,
+            'The user access token is invalid.'
+        );
 
         return $user;
     }

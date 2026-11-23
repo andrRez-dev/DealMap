@@ -1,10 +1,13 @@
+
 import { useState, type SubmitEvent } from "react";
 import RegisterImg from "../components/images/registerImg.png";
 import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const api = import.meta.env.VITE_API_URL;
@@ -20,6 +23,7 @@ export default function Register() {
     }
 
     const form = new FormData(event.currentTarget);
+
     const body = {
       name: form.get("name"),
       email: form.get("email"),
@@ -33,8 +37,8 @@ export default function Register() {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-type": "application/json",
         },
         body: JSON.stringify(body),
       });
@@ -46,8 +50,8 @@ export default function Register() {
         return;
       }
 
-      localStorage.setItem("clientToken", data.client_token);
-      navigate("/");
+      localStorage.setItem("client_token", data.client_token);
+      navigate("/main");
     } catch {
       setError("Did not succeed to connect with the server");
     } finally {
@@ -56,69 +60,130 @@ export default function Register() {
   }
 
   return (
-    <div className="flex items-center justify-center w-full h-full bg-green-950">
-      <div className="flex flex-row justify-between w-220 h-130 rounded-xl">
-        {/* image */}
-        <div className="w-1/2">
+    <div className="relative flex h-dvh w-full min-w-0 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-green-950 px-3 py-16 sm:px-6 lg:px-8">
+      {/* Back to Home */}
+      <Link
+        to="/"
+        className="absolute left-3 top-4 z-10 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-green-900 shadow-md transition-colors hover:bg-green-100 sm:left-6 sm:top-6 sm:px-4 sm:text-sm lg:left-8"
+      >
+        <ArrowLeft
+          aria-hidden="true"
+          className="h-4 w-4 sm:h-[18px] sm:w-[18px]"
+        />
+        Back to Home
+      </Link>
+
+      {/* Registration card */}
+      <div className="flex w-full min-w-0 max-w-[880px] overflow-hidden rounded-xl shadow-2xl">
+        {/* Decorative image */}
+        <div className="hidden min-w-0 sm:block sm:w-1/2">
           <img
             src={RegisterImg}
-            alt="background image for auth page"
-            className="h-full w-full rounded-l-xl object-cover"
+            alt="DealMap registration illustration"
+            className="h-full w-full object-cover"
           />
         </div>
 
-        {/* form */}
-        <div className="flex flex-col justify-start items-center bg-gray-900 w-1/2 rounded-r-xl text-white border border-white">
-          <h1 className="text-xl font-semibold mt-8">Create an account</h1>
-          <p className="text-base text-gray-300 mt-2">
+        {/* Registration form */}
+        <div className="flex w-full min-w-0 flex-col items-center border border-white bg-gray-900 px-4 py-8 text-white sm:w-1/2 sm:px-6 sm:py-10 lg:px-8">
+          <h1 className="mt-2 text-center text-xl font-semibold sm:mt-4 sm:text-2xl">
+            Create an account
+          </h1>
+
+          <p className="mt-2 text-center text-sm text-gray-300 sm:text-base">
             Enter your information below
           </p>
 
-          <form className="flex flex-col mt-9" onSubmit={register}>
-            <label htmlFor="fullname">Full Name</label>
+          <form
+            className="mt-7 flex w-full min-w-0 max-w-[320px] flex-col sm:mt-9"
+            onSubmit={register}
+          >
+            {/* Full name */}
+            <label
+              htmlFor="fullname"
+              className="text-sm font-medium"
+            >
+              Full Name
+            </label>
+
             <input
               type="text"
               id="fullname"
               name="name"
               placeholder="Name Surname"
-              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              autoComplete="name"
+              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+              required
             />
 
-            <label htmlFor="email" className="mt-3">
+            {/* Email */}
+            <label
+              htmlFor="email"
+              className="mt-4 text-sm font-medium"
+            >
               Email
             </label>
+
             <input
               type="email"
               id="email"
               name="email"
               placeholder="username@example.com"
-              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              autoComplete="email"
+              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+              required
             />
 
-            <label htmlFor="password" className="mt-3">
+            {/* Password */}
+            <label
+              htmlFor="password"
+              className="mt-4 text-sm font-medium"
+            >
               Password
             </label>
+
             <input
               type="password"
               id="password"
               name="password"
               placeholder="**********"
-              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+              autoComplete="new-password"
+              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+              required
             />
+
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="bg-white text-black mt-5 p-1 rounded-md hover:bg-gray-300 cursor-pointer transition-all font-medium"
+              className="mt-5 min-h-11 w-full cursor-pointer rounded-md bg-white px-4 py-2.5 font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Creating an account" : "Create"}
+              {loading ? "Creating an account..." : "Create account"}
             </button>
           </form>
 
-          {error && <p role="alert">{error}</p>}
+          {/* Error message */}
+          <div
+            className="mt-4 w-full min-w-0 max-w-[320px]"
+            aria-live="polite"
+          >
+            {error && (
+              <p
+                className="break-words text-center text-sm font-medium text-red-400"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
+          </div>
 
-          <p className="text-sm text-gray-300 mt-22">
+          {/* Login link */}
+          <p className="mt-8 max-w-full text-center text-sm text-gray-300 sm:mt-10">
             Already have an account?{" "}
-            <Link to="/login" className="text-white underline cursor-pointer">
+            <Link
+              to="/login"
+              className="font-medium text-white underline underline-offset-2 hover:text-green-300"
+            >
               Log in
             </Link>
           </p>

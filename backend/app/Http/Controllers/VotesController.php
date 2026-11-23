@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class VotesController extends Controller
 {
+    /**
+     * Store vote
+     */
     public function store(
         Request $request,
         string $offer,

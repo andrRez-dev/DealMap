@@ -20,10 +20,8 @@ return new class extends Migration
                 ->restrictOnDelete();
 
             $table->string('name', 200);
-            $table->string('name_lt', 200)->nullable();
             $table->string('unit', 30)->default('kg');
             $table->string('barcode', 50)->nullable();
-            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestampsTz();
 

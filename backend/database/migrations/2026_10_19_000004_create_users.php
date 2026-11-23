@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email', 255)->unique();
             $table->string('password_hash', 255);
             $table->boolean('is_active')->default(true);
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestampsTz();
         });
     }

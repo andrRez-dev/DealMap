@@ -1,7 +1,7 @@
 
 services:
   db:
-    image: postgres:15-alpine
+    image: postgis/postgis:15-3.3
     container_name: postgres_db
     restart: always
     environment:
@@ -42,6 +42,31 @@ services:
     networks:
       - dealmap-net
 
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=dealmap
+      - DB_USERNAME=admin
+      - DB_PASSWORD=dealmap
+    command: php artisan schedule:work
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    networks:
+      - dealmap-net
+
   webserver:
     image: nginx:alpine
     container_name: laravel_nginx
@@ -74,6 +99,8 @@ services:
 
 volumes:
   postgres_data:
+    external: true
+    name: dealmap-main_postgres_data
 
 networks:
   dealmap-net:
