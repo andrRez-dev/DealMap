@@ -44,7 +44,8 @@ class OffersController extends Controller
                 });
             })
             ->with([
-                'product:id,name,unit',
+                'product:id,name,unit,category_id',
+                'product.category:id,name',
                 'store:id,name,brand,address,city,latitude,longitude',
             ])
             ->withCount([
@@ -74,7 +75,9 @@ class OffersController extends Controller
                     'original_price' => $offer->original_price,
                     'starts_at' => $offer->starts_at,
                     'expires_at' => $offer->expires_at,
+                    'created_at' => $offer->created_at,
                     'product_name' => $offer->product->name,
+                    'category_name' => $offer->product->category?->name,
                     'product_unit' => $offer->product->unit,
                     'store_name' => $offer->store->name,
                     'store_brand' => $offer->store->brand,
@@ -114,7 +117,8 @@ class OffersController extends Controller
         $offers_list = Offer::query()
                             ->where('store_id', $validated['id'])
                             ->with([
-                                'product:id,name,unit',
+                                'product:id,name,unit,category_id',
+                                'product.category:id,name',
                                 'store:id,name,brand,address,city',
                                 'votes' => fn (HasMany $votes) => $votes
                                     ->where('user_id', $userId)
@@ -142,7 +146,9 @@ class OffersController extends Controller
                                     'original_price' => $offer->original_price,
                                     'starts_at' => $offer->starts_at,
                                     'expires_at' => $offer->expires_at,
+                                    'created_at' => $offer->created_at,
                                     'product_name' => $offer->product->name,
+                                    'category_name' => $offer->product->category?->name,
                                     'product_unit' => $offer->product->unit,
                                     'store_name' => $offer->store->name,
                                     'store_brand' => $offer->store->brand,
@@ -189,7 +195,8 @@ class OffersController extends Controller
                                 $query->where('category_id' , $validated['category_id']);
                             })
                             ->with([
-                                'product:id,name,unit',
+                                'product:id,name,unit,category_id',
+                                'product.category:id,name',
                                 'store:id,name,brand,address,city',
                                 'votes' => fn (HasMany $votes) => $votes
                                     ->where('user_id', $userId)
@@ -217,7 +224,9 @@ class OffersController extends Controller
                                     'original_price' => $offer->original_price,
                                     'starts_at' => $offer->starts_at,
                                     'expires_at' => $offer->expires_at,
+                                    'created_at' => $offer->created_at,
                                     'product_name' => $offer->product->name,
+                                    'category_name' => $offer->product->category?->name,
                                     'product_unit' => $offer->product->unit,
                                     'store_name' => $offer->store->name,
                                     'store_brand' => $offer->store->brand,
@@ -281,7 +290,12 @@ class OffersController extends Controller
         $radiusInMeters = $validated['radius'] * 1000;
 
         $offers_response = Offer::query()
-            ->with(['product:id,name', 'store:id,name,address', 'user:id,name'])
+            ->with([
+                'product:id,name,category_id',
+                'product.category:id,name',
+                'store:id,name,address',
+                'user:id,name',
+            ])
             ->whereHas('store', function($query) use ($latitude, $longitude, $radiusInMeters){
                 
                 $query->whereRaw("
@@ -296,6 +310,7 @@ class OffersController extends Controller
             ->get()
             ->map(fn ($offer) => [
                 'product_name' => $offer->product?->name,
+                'category_name' => $offer->product?->category?->name,
                 'store_name' => $offer->store?->name,
                 'store_address' => $offer->store?->address,
                 'created_by' => $offer->user?->name,
@@ -303,7 +318,8 @@ class OffersController extends Controller
                 'discounted_price' => $offer->discounted_price,
                 'discount_percent' => $offer->discount_percent,
                 'starts_at' => $offer->starts_at,
-                'expires_at' => $offer->expires_at
+                'expires_at' => $offer->expires_at,
+                'created_at' => $offer->created_at,
             ]);
         
         return response()->json([
@@ -457,6 +473,7 @@ class OffersController extends Controller
                 'id' => $offer->id,
                 'product_id' => $offer->product_id,
                 'store_id' => $offer->store_id,
+                'created_at' => $offer->created_at,
                 'title' => "-" . $offer->discount_percent . "% for " . $offer->product->name
             ]
         ], 200);

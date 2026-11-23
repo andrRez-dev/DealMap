@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { latLngBounds } from "leaflet";
+import { divIcon, latLngBounds } from "leaflet";
 import {
   CircleMarker,
   MapContainer,
+  Marker,
   Popup,
   TileLayer,
   useMap,
@@ -11,6 +12,8 @@ import {
   ZoomControl,
 } from "react-leaflet";
 import { Link, useOutletContext } from "react-router-dom";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MapPin } from "lucide-react";
 import { fetchStores } from "../shared/getStores";
 import type { Store } from "../shared/types";
 import "leaflet/dist/leaflet.css";
@@ -30,8 +33,21 @@ type MapOutletContext = {
   setMapView: (view: MapView) => void;
 };
 
+type UserPosition = {
+  latitude: number;
+  longitude: number;
+};
+
 const initialMapCenter: [number, number] = [55.7033, 21.1443];
 const initialMapZoom = 13;
+const storeIcon = divIcon({
+  className: "",
+  html: renderToStaticMarkup(
+    <MapPin size={26} color="#15803d" fill="#ffffff" strokeWidth={2.5} />,
+  ),
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 function getLocatedStores(stores: Store[]): LocatedStore[] {
   return stores
@@ -90,6 +106,8 @@ function CaptureMapView({ onChange }: { onChange: (view: MapView) => void }) {
 
 export default function MapContent() {
   const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY;
+  const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
+  const [locationError, setLocationError] = useState("");
   const { mapView, setMapView } = useOutletContext<MapOutletContext>();
   const {
     data: stores = [],
@@ -100,6 +118,39 @@ export default function MapContent() {
     queryFn: fetchStores, // function which requests stores
     select: getLocatedStores, // converts coordinates to numbers and discards stores with incorrect coordinates
   });
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserPosition({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setLocationError("");
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError("Location access was denied.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocationError("Your location is currently unavailable.");
+        } else {
+          setLocationError("Unable to determine your location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 30_000,
+        timeout: 10_000,
+      },
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
   return (
     <section
@@ -119,6 +170,14 @@ export default function MapContent() {
           No stores with valid coordinates found.
         </p>
       )}
+      {locationError && (
+        <p
+          className="absolute right-6 bottom-6 z-1000 rounded-lg bg-white px-4 py-3 text-sm text-gray-700 shadow"
+          role="status"
+        >
+          {locationError}
+        </p>
+      )}
       <MapContainer
         center={mapView?.center ?? initialMapCenter}
         zoom={mapView?.zoom ?? initialMapZoom}
@@ -134,19 +193,27 @@ export default function MapContent() {
           url={`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`}
         />
         <FitStores stores={stores} shouldFit={!mapView} />
-        {stores.map((store) => (
+        {userPosition && (
           <CircleMarker
-            key={store.id}
-            center={[store.latitude, store.longitude]}
-            eventHandlers={{
-              mouseover: (event) => event.target.openPopup(),
-            }}
-            radius={9}
+            center={[userPosition.latitude, userPosition.longitude]}
+            radius={8}
             pathOptions={{
               color: "#ffffff",
-              weight: 3,
-              fillColor: "#15803d",
+              fillColor: "#4285F4",
               fillOpacity: 1,
+              weight: 3,
+            }}
+          >
+            <Popup>Your location</Popup>
+          </CircleMarker>
+        )}
+        {stores.map((store) => (
+          <Marker
+            key={store.id}
+            position={[store.latitude, store.longitude]}
+            icon={storeIcon}
+            eventHandlers={{
+              mouseover: (event) => event.target.openPopup(),
             }}
           >
             <Popup>
@@ -168,7 +235,7 @@ export default function MapContent() {
                 See offers
               </Link>
             </Popup>
-          </CircleMarker>
+          </Marker>
         ))}
       </MapContainer>
     </section>
