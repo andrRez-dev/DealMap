@@ -6,8 +6,7 @@ import { fetchStores } from "../shared/getStores";
 import OfferFields from "./addOffer/components/OfferFields";
 import ProductFields from "./addOffer/components/ProductFields";
 import useProductSearch from "./addOffer/useProductSearch";
-import type { ProductDraft } from "./addOffer/types";
-import { type Product } from "../shared/types";
+import type { ProductDraft, Product } from "./addOffer/types";
 import { type Category } from "../shared/types";
 
 type CategoriesResponse = {

@@ -125,12 +125,12 @@ export default function SearchContent() {
   return (
     <section className="h-full flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 overflow-hidden">
       <div className="w-full">
-        <header className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-[#26332a]">
+            <h2 className="text-3xl font-semibold tracking-tight text-[#26332a]">
               Deals near you
             </h2>
-            <p className="mt-1 text-sm text-[#7a857e]">
+            <p className="mt-1 text-lg text-[#7a857e]">
               Find your next great deal
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function SearchContent() {
             maxLength={40}
             value={searchProduct}
             onChange={(event) => setSearchProduct(event.target.value)}
-            className="my-5 w-full h-12 rounded-lg border border-gray-300 bg-white px-3 pl-12 text-sm focus:border-green-700 focus:outline-none focus:ring-2 focus:ring-green-700/15"
+            className="my-5 w-full h-13 rounded-lg border border-gray-300 bg-white px-3 pl-12 text-sm focus:border-green-700 focus:outline-none focus:ring-2 focus:ring-green-700/15"
             placeholder="Search for a product"
           />
           <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
