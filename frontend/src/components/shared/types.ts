@@ -18,6 +18,8 @@ export type Offer = {
   discount_percent: string | number | null;
   starts_at: string | null;
   expires_at: string | null;
+  created_at: string;
+  category_name?: string | null;
   product_name: string;
   product_unit: string;
   store_name: string;
