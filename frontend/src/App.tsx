@@ -77,6 +77,7 @@ function ProtectedAuth() {
 export default function App() {
   return (
     <BrowserRouter>
+
       <main className="w-screen min-h-screen h-screen">
         <Routes>
           <Route path="/" element={<InfoPage />} />

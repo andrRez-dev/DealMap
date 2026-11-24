@@ -2,7 +2,11 @@ import { Heart, LoaderCircle } from "lucide-react";
 
 const skeletonItems = [0, 1, 2];
 
-function SkeletonBlock({ className }: { className: string }) {
+function SkeletonBlock({
+  className,
+}: {
+  className: string;
+}) {
   return (
     <div
       aria-hidden="true"

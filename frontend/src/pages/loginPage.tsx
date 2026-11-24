@@ -1,7 +1,9 @@
+
 import GoogleIcon from "@mui/icons-material/Google";
 import LoginImg from "../components/images/loginImg.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, type SubmitEvent } from "react";
+import { ArrowLeft } from "lucide-react";
 
 export default function Login() {
   const [error, setError] = useState("");
@@ -22,6 +24,7 @@ export default function Login() {
     }
 
     const form = new FormData(event.currentTarget);
+
     const body = {
       login: form.get("login"),
       password: form.get("password"),
@@ -39,6 +42,7 @@ export default function Login() {
         },
         body: JSON.stringify(body),
       });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -56,17 +60,42 @@ export default function Login() {
   }
 
   return (
-    <div className="flex items-center justify-center w-full h-full bg-green-950">
-      <div className="flex flex-row justify-between w-220 h-130 rounded-xl">
-        {/* form  */}
-        <div className="flex flex-col justify-start items-center bg-gray-900 w-1/2 rounded-l-xl text-white border border-white">
-          <h1 className="text-xl font-semibold mt-8">Welcome back</h1>
-          <p className="text-base text-gray-300 mt-2">
+    <div className="relative flex h-dvh w-full min-w-0 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-green-950 px-3 py-16 sm:px-6 lg:px-8">
+       {/* Back to Home */}
+      <Link
+        to="/"
+        className="absolute left-3 top-4 z-10 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-green-900 shadow-md transition-colors hover:bg-green-100 sm:left-6 sm:top-6 sm:px-4 sm:text-sm lg:left-8"
+      >
+        <ArrowLeft
+          aria-hidden="true"
+          className="h-4 w-4 sm:h-[18px] sm:w-[18px]"
+        />
+        Back to Home
+      </Link>
+
+      {/* Auth card */}
+      <div className="flex w-full min-w-0 max-w-[880px] overflow-hidden rounded-xl shadow-2xl">
+        {/* Login form */}
+        <div className="flex w-full min-w-0 flex-col items-center border border-white bg-gray-900 px-4 py-8 text-white sm:w-1/2 sm:px-6 sm:py-10 lg:px-8">
+          <h1 className="mt-2 text-center text-xl font-semibold sm:mt-4 sm:text-2xl">
+            Welcome back
+          </h1>
+
+          <p className="mt-2 text-center text-sm text-gray-300 sm:text-base">
             Login to your DealMap account
           </p>
 
-          <form className="flex flex-col mt-6" onSubmit={login}>
-            <label htmlFor="email">Email</label>
+          <form
+            className="mt-6 flex w-full min-w-0 max-w-[320px] flex-col"
+            onSubmit={login}
+          >
+            <label
+              htmlFor="email"
+              className="text-sm font-medium"
+            >
+              Email
+            </label>
+
             <input
               type="email"
               id="email"
@@ -75,12 +104,21 @@ export default function Login() {
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
               required
             />
-            <div className="flex flex-row mt-5 justify-between">
-              <label htmlFor="password">Password</label>
-              <p className="text-sm text-gray-400 hover:underline hover:text-white transition-all cursor-pointer">
+
+            <div className="mt-5 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium"
+              >
+                Password
+              </label>
+
+              {/* Password recovery is not implemented yet */}
+              <span className="text-xs text-gray-400 sm:text-sm">
                 Forgot your password?
-              </p>
+              </span>
             </div>
+
             <input
               type="password"
               id="password"
@@ -89,11 +127,13 @@ export default function Login() {
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
               required
             />
+
             <button
               type="submit"
-              className="bg-white text-black mt-5 p-1 rounded-md hover:bg-gray-300 cursor-pointer transition-all font-medium"
+              disabled={loading}
+              className="mt-5 min-h-11 w-full cursor-pointer rounded-md bg-white px-4 py-2.5 font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Submitting an application" : "Submit"}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
@@ -120,20 +160,19 @@ export default function Login() {
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="text-white underline cursor-pointer"
-              // onClick={() => setAction("register")}
+              className="font-medium text-white underline underline-offset-2 hover:text-green-300"
             >
-              Sing up
+              Sign up
             </Link>
           </p>
         </div>
 
-        {/* image */}
-        <div className="w-1/2">
+        {/* Decorative image */}
+        <div className="hidden min-w-0 sm:block sm:w-1/2">
           <img
             src={LoginImg}
-            alt="background image for auth page"
-            className="h-full w-full rounded-r-xl object-cover"
+            alt="DealMap login illustration"
+            className="h-full w-full object-cover"
           />
         </div>
       </div>
