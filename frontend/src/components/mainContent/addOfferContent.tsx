@@ -6,7 +6,7 @@ import { fetchStores } from "../shared/getStores";
 import OfferFields from "./addOffer/components/OfferFields";
 import ProductFields from "./addOffer/components/ProductFields";
 import useProductSearch from "./addOffer/useProductSearch";
-import type { ProductDraft, Product } from "./addOffer/types";
+import type { Product, ProductDraft } from "./addOffer/types";
 import { type Category } from "../shared/types";
 
 type CategoriesResponse = {
@@ -260,8 +260,8 @@ export default function AddOfferContent() {
   }
 
   return (
-    <section className="h-full flex-1 overflow-y-auto px-5 py-6 md:px-8 md:py-7">
-      <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white p-5 shadow-sm md:p-8">
+    <section className="min-h-0 w-full min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div className="mx-auto w-full min-w-0 max-w-3xl rounded-2xl bg-white p-4 shadow-sm sm:p-6 lg:p-8">
         <h2 className="text-xl font-semibold text-[#26332a]">Add an offer</h2>
         <p className="mt-1 text-sm text-gray-500">
           Add a product, store, and discounted price.
@@ -288,7 +288,7 @@ export default function AddOfferContent() {
           <p className="mt-6 text-sm text-gray-500">Loading form data…</p>
         ) : (
           <form className="mt-6 space-y-6" onSubmit={submitOffer}>
-            <fieldset disabled={isSubmitting} className="space-y-6">
+            <fieldset disabled={isSubmitting} className="min-w-0 space-y-5 sm:space-y-6">
               <ProductFields
                 categories={categories}
                 isNewProduct={isNewProduct}

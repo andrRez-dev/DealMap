@@ -99,7 +99,6 @@ services:
 
 volumes:
   postgres_data:
-
 networks:
   dealmap-net:
     driver: bridge

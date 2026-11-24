@@ -1,3 +1,4 @@
+
 import type { Store } from "../../../shared/types";
 import { fieldClassName, labelClassName } from "../formStyles";
 
@@ -40,15 +41,17 @@ export default function OfferFields({
 }: Props) {
   return (
     <>
-      <label className={labelClassName}>
+      {/* Store selection */}
+      <label className={`${labelClassName} block min-w-0`}>
         Store *
         <select
-          className={fieldClassName}
+          className={`${fieldClassName} block w-full min-w-0 max-w-full`}
           required
           value={storeId}
           onChange={(event) => onStoreIdChange(event.target.value)}
         >
           <option value="">Select a store</option>
+
           {stores.map((store) => (
             <option key={store.id} value={store.id}>
               {store.name}
@@ -57,28 +60,31 @@ export default function OfferFields({
             </option>
           ))}
         </select>
+
         {stores.length === 0 && (
-          <span className="mt-1 block text-xs font-normal text-red-700">
+          <span className="mt-1 block break-words text-xs font-normal text-red-700">
             No active stores are available.
           </span>
         )}
       </label>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className={labelClassName}>
+      {/* Offer details */}
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className={`${labelClassName} block min-w-0`}>
           Offer title *
           <input
-            className={fieldClassName}
+            className={`${fieldClassName} block w-full min-w-0`}
             required
             maxLength={200}
             value={title}
             onChange={(event) => onTitleChange(event.target.value)}
           />
         </label>
-        <label className={labelClassName}>
+
+        <label className={`${labelClassName} block min-w-0`}>
           Expires on
           <input
-            className={fieldClassName}
+            className={`${fieldClassName} block w-full min-w-0 max-w-full`}
             type="date"
             min={today}
             max={maxExpiryDate}
@@ -86,47 +92,57 @@ export default function OfferFields({
             onChange={(event) => onExpiresAtChange(event.target.value)}
           />
         </label>
-        <label className={labelClassName}>
+
+        <label className={`${labelClassName} block min-w-0`}>
           Original price *
           <input
-            className={fieldClassName}
+            className={`${fieldClassName} block w-full min-w-0`}
             type="number"
             required
             min="0.01"
             step="0.01"
             inputMode="decimal"
             value={originalPrice}
-            onChange={(event) => onOriginalPriceChange(event.target.value)}
+            onChange={(event) =>
+              onOriginalPriceChange(event.target.value)
+            }
           />
         </label>
-        <label className={labelClassName}>
+
+        <label className={`${labelClassName} block min-w-0`}>
           Discounted price *
           <input
-            className={fieldClassName}
+            className={`${fieldClassName} block w-full min-w-0`}
             type="number"
             required
             min="0.01"
             step="0.01"
             inputMode="decimal"
             value={discountedPrice}
-            onChange={(event) => onDiscountedPriceChange(event.target.value)}
+            onChange={(event) =>
+              onDiscountedPriceChange(event.target.value)
+            }
           />
         </label>
       </div>
 
-      <label className={labelClassName}>
+      {/* Description */}
+      <label className={`${labelClassName} block min-w-0`}>
         Offer description
         <input
-          className={fieldClassName}
+          className={`${fieldClassName} block w-full min-w-0`}
           value={description}
-          onChange={(event) => onDescriptionChange(event.target.value)}
+          onChange={(event) =>
+            onDescriptionChange(event.target.value)
+          }
         />
       </label>
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={isSubmitting || !stores.length}
-        className="w-full rounded-lg bg-green-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full min-w-0 rounded-lg bg-green-700 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
       >
         {isSubmitting ? "Adding offer…" : "Add offer"}
       </button>
