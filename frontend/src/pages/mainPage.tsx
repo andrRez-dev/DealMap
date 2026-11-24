@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 import {
   MapPin,
@@ -25,17 +24,6 @@ const panelElement =
 
 const chosen =
   "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl bg-green-50 px-1 py-2 text-[10px] font-semibold text-green-700 transition-colors sm:gap-1.5 sm:px-3 sm:text-sm";
-=======
-import { MapPin, UserRoundArrowLeft, ChevronDown } from "lucide-react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { House, Search, MapPinned, Heart, SquarePlus } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
-
-const panelElement = "flex flex-col items-center text-sm gap-1";
-const chosen = "flex flex-col items-center text-sm gap-1 text-green-700";
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
 
 type MapView = {
   center: [number, number];
@@ -45,7 +33,6 @@ type MapView = {
 export default function MainPage() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-<<<<<<< HEAD
 
   const [mapView, setMapView] = useState<MapView | null>(
     null
@@ -135,60 +122,10 @@ export default function MainPage() {
               className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
             />
             <span>Home</span>
-=======
-  const [mapView, setMapView] = useState<MapView | null>(null);
-
-  return (
-    <div className="flex flex-col justify-between w-full h-full bg-[#e9eee8]">
-      <header className="flex items-center justify-between px-10 bg-white min-h-22 w-full">
-        <div className="flex flex-col">
-          <div className="flex flex-row items-center">
-            <div className="p-2 bg-green-700 rounded-lg">
-              <MapPin className="text-white" />
-            </div>
-            <h1 className="text-xl font-bold ml-2">
-              Deal<span className="text-green-700">Map</span>
-            </h1>
-          </div>
-          <div className="flex flex-row items-center mt-0.5">
-            <p>
-              <span className="font-semibold">Klaipėda</span> - near me
-            </p>
-            <ChevronDown className="scale-80 mt-1" />
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            localStorage.removeItem("client_token");
-            navigate("/login");
-          }}
-          className="hover:scale-110 hover:text-green-700 cursor-pointer transition-all active:scale-90"
-        >
-          <UserRoundArrowLeft className="scale-110" />
-        </button>
-      </header>
-
-      {/* main content of the page ⬇️  */}
-      <div className="min-h-0 flex-1">
-        <Outlet context={{ mapView, setMapView }} />
-      </div>
-
-      <footer className="relative">
-        <div className="flex flex-row min-h-22 w-full bg-white items-center justify-center gap-25">
-          <Link
-            to="/main/home"
-            className={
-              pathname === "/main/home" ? `${chosen}` : `${panelElement}`
-            }
-          >
-            <House />
-            <p>Home</p>
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
           </Link>
 
           <Link
             to="/main/search"
-<<<<<<< HEAD
             aria-current={
               pathname === "/main/search"
                 ? "page"
@@ -205,19 +142,10 @@ export default function MainPage() {
               className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
             />
             <span>Search</span>
-=======
-            className={
-              pathname === "/main/search" ? `${chosen}` : `${panelElement}`
-            }
-          >
-            <Search />
-            <p>Search</p>
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
           </Link>
 
           <Link
             to="/main/add"
-<<<<<<< HEAD
             aria-current={
               pathname === "/main/add"
                 ? "page"
@@ -234,19 +162,10 @@ export default function MainPage() {
               className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
             />
             <span>Add</span>
-=======
-            className={
-              pathname === "/main/add" ? `${chosen}` : `${panelElement}`
-            }
-          >
-            <SquarePlus />
-            <p>Add</p>
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
           </Link>
 
           <Link
             to="/main/map"
-<<<<<<< HEAD
             aria-current={
               pathname === "/main/map"
                 ? "page"
@@ -263,19 +182,10 @@ export default function MainPage() {
               className="h-5 w-5 shrink-0 sm:h-6 sm:w-6"
             />
             <span>Map</span>
-=======
-            className={
-              pathname === "/main/map" ? `${chosen}` : `${panelElement}`
-            }
-          >
-            <MapPinned />
-            <p>Map</p>
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
           </Link>
 
           <Link
             to="/main/favorites"
-<<<<<<< HEAD
             aria-current={
               pathname === "/main/favorites"
                 ? "page"
@@ -294,16 +204,6 @@ export default function MainPage() {
             <span>Favorites</span>
           </Link>
         </nav>
-=======
-            className={
-              pathname === "/main/favorites" ? `${chosen}` : `${panelElement}`
-            }
-          >
-            <Heart />
-            <p>Favorites</p>
-          </Link>
-        </div>
->>>>>>> 566d474c9031e314b552850f413e2179164e84f1
       </footer>
     </div>
   );
