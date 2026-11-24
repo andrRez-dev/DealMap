@@ -99,6 +99,8 @@ services:
 
 volumes:
   postgres_data:
+    external: true
+    name: dealmap-main_postgres_data
 
 networks:
   dealmap-net:

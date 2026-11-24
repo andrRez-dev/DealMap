@@ -101,7 +101,12 @@ export default function Login() {
               id="email"
               name="login"
               placeholder="username@example.com"
+<<<<<<< HEAD
+              autoComplete="email"
+              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -124,7 +129,12 @@ export default function Login() {
               id="password"
               name="password"
               placeholder="**********"
+<<<<<<< HEAD
+              autoComplete="current-password"
+              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
               className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -137,6 +147,46 @@ export default function Login() {
             </button>
           </form>
 
+<<<<<<< HEAD
+          {/* Error message */}
+          <div
+            className="my-4 w-full min-w-0 max-w-[320px]"
+            aria-live="polite"
+          >
+            {error && (
+              <p
+                className="break-words text-center text-sm font-medium text-red-400"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="flex w-full max-w-[320px] items-center gap-3">
+            <div className="h-px min-w-0 flex-1 bg-gray-600" />
+
+            <span className="shrink-0 text-sm text-gray-300">
+              Or
+            </span>
+
+            <div className="h-px min-w-0 flex-1 bg-gray-600" />
+          </div>
+
+          {/* Google login placeholder */}
+          <button
+            type="button"
+            disabled
+            className="mt-4 inline-flex min-h-11 w-full max-w-[320px] items-center justify-center gap-2 rounded-md border border-gray-600 px-3 py-2 text-sm text-gray-400 disabled:cursor-not-allowed"
+          >
+            <GoogleIcon fontSize="small" />
+            Continue with Google
+          </button>
+
+          {/* Register link */}
+          <p className="mt-8 max-w-full text-center text-sm text-gray-300 sm:mt-10">
+=======
           {error ? (
             <p className="text-red-500 font-medium h-5 my-4" role="alert">
               {error}
@@ -157,6 +207,7 @@ export default function Login() {
           </button>
 
           <p className="text-sm text-gray-300 mt-10">
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
             Don't have an account?{" "}
             <Link
               to="/register"
