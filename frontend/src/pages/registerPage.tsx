@@ -111,8 +111,12 @@ export default function Register() {
               id="fullname"
               name="name"
               placeholder="Name Surname"
+<<<<<<< HEAD
               autoComplete="name"
               className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -129,8 +133,12 @@ export default function Register() {
               id="email"
               name="email"
               placeholder="username@example.com"
+<<<<<<< HEAD
               autoComplete="email"
               className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -147,8 +155,12 @@ export default function Register() {
               id="password"
               name="password"
               placeholder="**********"
+<<<<<<< HEAD
               autoComplete="new-password"
               className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -162,6 +174,7 @@ export default function Register() {
             </button>
           </form>
 
+<<<<<<< HEAD
           {/* Error message */}
           <div
             className="mt-4 w-full min-w-0 max-w-[320px]"
@@ -179,6 +192,17 @@ export default function Register() {
 
           {/* Login link */}
           <p className="mt-8 max-w-full text-center text-sm text-gray-300 sm:mt-10">
+=======
+          {error ? (
+            <p className="h-5 text-red-500 font-medium mt-4 w-90" role="alert">
+              {error}
+            </p>
+          ) : (
+            <div className="h-5 w-5 mt-4" />
+          )}
+
+          <p className="text-sm text-gray-300 mt-14">
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
             Already have an account?{" "}
             <Link
               to="/login"

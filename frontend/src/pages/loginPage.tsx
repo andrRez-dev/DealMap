@@ -101,8 +101,12 @@ export default function Login() {
               id="email"
               name="login"
               placeholder="username@example.com"
+<<<<<<< HEAD
               autoComplete="email"
               className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -125,8 +129,12 @@ export default function Login() {
               id="password"
               name="password"
               placeholder="**********"
+<<<<<<< HEAD
               autoComplete="current-password"
               className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+=======
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
               required
             />
 
@@ -139,6 +147,7 @@ export default function Login() {
             </button>
           </form>
 
+<<<<<<< HEAD
           {/* Error message */}
           <div
             className="my-4 w-full min-w-0 max-w-[320px]"
@@ -177,6 +186,28 @@ export default function Login() {
 
           {/* Register link */}
           <p className="mt-8 max-w-full text-center text-sm text-gray-300 sm:mt-10">
+=======
+          {error ? (
+            <p className="text-red-500 font-medium h-5 my-4" role="alert">
+              {error}
+            </p>
+          ) : (
+            <div className="h-5 w-5 my-4" />
+          )}
+
+          <div className="flex flex-row items-center ">
+            <div className="w-35 h-px bg-white" />
+            <p className="mx-2 text-sm">Or</p>
+            <div className="w-35 h-px bg-white" />
+          </div>
+
+          <button className="flex flex-row items-center mt-4 border border-gray-300 p-2 rounded-md text-sm gap-1 cursor-not-allowed text-gray-500">
+            <GoogleIcon className="scale-95" />
+            <p>Continue with Google </p>
+          </button>
+
+          <p className="text-sm text-gray-300 mt-10">
+>>>>>>> 566d474c9031e314b552850f413e2179164e84f1
             Don't have an account?{" "}
             <Link
               to="/register"

@@ -33,6 +33,7 @@ class Offer extends Model
             'discount_percent' => 'integer',
             'starts_at' => 'date:Y-m-d',
             'expires_at' => 'date:Y-m-d',
+            'created_at' => 'datetime',
             'is_active' => 'boolean',
             'works_votes' => 'integer',
             'expired_votes' => 'integer',
