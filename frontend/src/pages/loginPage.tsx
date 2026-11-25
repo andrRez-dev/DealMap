@@ -1,9 +1,7 @@
-
 import GoogleIcon from "@mui/icons-material/Google";
 import LoginImg from "../components/images/loginImg.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, type SubmitEvent } from "react";
-import { ArrowLeft } from "lucide-react";
 
 export default function Login() {
   const [error, setError] = useState("");
@@ -24,7 +22,6 @@ export default function Login() {
     }
 
     const form = new FormData(event.currentTarget);
-
     const body = {
       login: form.get("login"),
       password: form.get("password"),
@@ -42,7 +39,6 @@ export default function Login() {
         },
         body: JSON.stringify(body),
       });
-
       const data = await response.json();
 
       if (!response.ok) {
@@ -60,139 +56,84 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex h-dvh w-full min-w-0 flex-col items-center justify-center overflow-y-auto overflow-x-hidden bg-green-950 px-3 py-16 sm:px-6 lg:px-8">
-       {/* Back to Home */}
-      <Link
-        to="/"
-        className="absolute left-3 top-4 z-10 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-green-900 shadow-md transition-colors hover:bg-green-100 sm:left-6 sm:top-6 sm:px-4 sm:text-sm lg:left-8"
-      >
-        <ArrowLeft
-          aria-hidden="true"
-          className="h-4 w-4 sm:h-[18px] sm:w-[18px]"
-        />
-        Back to Home
-      </Link>
-
-      {/* Auth card */}
-      <div className="flex w-full min-w-0 max-w-[880px] overflow-hidden rounded-xl shadow-2xl">
-        {/* Login form */}
-        <div className="flex w-full min-w-0 flex-col items-center border border-white bg-gray-900 px-4 py-8 text-white sm:w-1/2 sm:px-6 sm:py-10 lg:px-8">
-          <h1 className="mt-2 text-center text-xl font-semibold sm:mt-4 sm:text-2xl">
-            Welcome back
-          </h1>
-
-          <p className="mt-2 text-center text-sm text-gray-300 sm:text-base">
+    <div className="flex items-center justify-center w-full h-full bg-green-950">
+      <div className="flex flex-row justify-between w-220 h-130 rounded-xl">
+        {/* form  */}
+        <div className="flex flex-col justify-start items-center bg-gray-900 w-1/2 rounded-l-xl text-white border border-white">
+          <h1 className="text-xl font-semibold mt-8">Welcome back</h1>
+          <p className="text-base text-gray-300 mt-2">
             Login to your DealMap account
           </p>
 
-          <form
-            className="mt-6 flex w-full min-w-0 max-w-[320px] flex-col"
-            onSubmit={login}
-          >
-            <label
-              htmlFor="email"
-              className="text-sm font-medium"
-            >
-              Email
-            </label>
-
+          <form className="flex flex-col mt-6" onSubmit={login}>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               name="login"
               placeholder="username@example.com"
-              autoComplete="email"
-              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
               required
             />
-
-            <div className="mt-5 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium"
-              >
-                Password
-              </label>
-
-              {/* Password recovery is not implemented yet */}
-              <span className="text-xs text-gray-400 sm:text-sm">
+            <div className="flex flex-row mt-5 justify-between">
+              <label htmlFor="password">Password</label>
+              <p className="text-sm text-gray-400 hover:underline hover:text-white transition-all cursor-pointer">
                 Forgot your password?
-              </span>
+              </p>
             </div>
-
             <input
               type="password"
               id="password"
               name="password"
               placeholder="**********"
-              autoComplete="current-password"
-              className="mt-1 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2.5 text-gray-900 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+              className="border border-gray-300 p-1 px-2 w-80 rounded-md mt-1"
               required
             />
-
             <button
               type="submit"
-              disabled={loading}
-              className="mt-5 min-h-11 w-full cursor-pointer rounded-md bg-white px-4 py-2.5 font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="bg-white text-black mt-5 p-1 rounded-md hover:bg-gray-300 cursor-pointer transition-all font-medium"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Submitting an application" : "Submit"}
             </button>
           </form>
 
-          {/* Error message */}
-          <div
-            className="my-4 w-full min-w-0 max-w-[320px]"
-            aria-live="polite"
-          >
-            {error && (
-              <p
-                className="break-words text-center text-sm font-medium text-red-400"
-                role="alert"
-              >
-                {error}
-              </p>
-            )}
+          {error ? (
+            <p className="text-red-500 font-medium h-5 my-4" role="alert">
+              {error}
+            </p>
+          ) : (
+            <div className="h-5 w-5 my-4" />
+          )}
+
+          <div className="flex flex-row items-center ">
+            <div className="w-35 h-px bg-white" />
+            <p className="mx-2 text-sm">Or</p>
+            <div className="w-35 h-px bg-white" />
           </div>
 
-          {/* Divider */}
-          <div className="flex w-full max-w-[320px] items-center gap-3">
-            <div className="h-px min-w-0 flex-1 bg-gray-600" />
-
-            <span className="shrink-0 text-sm text-gray-300">
-              Or
-            </span>
-
-            <div className="h-px min-w-0 flex-1 bg-gray-600" />
-          </div>
-
-          {/* Google login placeholder */}
-          <button
-            type="button"
-            disabled
-            className="mt-4 inline-flex min-h-11 w-full max-w-[320px] items-center justify-center gap-2 rounded-md border border-gray-600 px-3 py-2 text-sm text-gray-400 disabled:cursor-not-allowed"
-          >
-            <GoogleIcon fontSize="small" />
-            Continue with Google
+          <button className="flex flex-row items-center mt-4 border border-gray-300 p-2 rounded-md text-sm gap-1 cursor-not-allowed text-gray-500">
+            <GoogleIcon className="scale-95" />
+            <p>Continue with Google </p>
           </button>
 
-          {/* Register link */}
-          <p className="mt-8 max-w-full text-center text-sm text-gray-300 sm:mt-10">
+          <p className="text-sm text-gray-300 mt-10">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-medium text-white underline underline-offset-2 hover:text-green-300"
+              className="text-white underline cursor-pointer"
+              // onClick={() => setAction("register")}
             >
-              Sign up
+              Sing up
             </Link>
           </p>
         </div>
 
-        {/* Decorative image */}
-        <div className="hidden min-w-0 sm:block sm:w-1/2">
+        {/* image */}
+        <div className="w-1/2">
           <img
             src={LoginImg}
-            alt="DealMap login illustration"
-            className="h-full w-full object-cover"
+            alt="background image for auth page"
+            className="h-full w-full rounded-r-xl object-cover"
           />
         </div>
       </div>

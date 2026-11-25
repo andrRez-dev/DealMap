@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { getRequestHeaders, readResponse } from "../../shared/api";
 
@@ -31,7 +30,9 @@ export default function Vote({
   const [vote, setVote] = useState<VoteResponse>();
   const [submittedVote, setSubmittedVote] = useState<VoteValue | null>(myVote);
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+  const [worksCount, setWorksCount] = useState(worksVotes);
+  const [expiredCount, setExpiredCunt] = useState(expiredVotes);
 
   function isVoteValue(value: unknown): value is VoteValue {
     return value === "works" || value === "expired";
@@ -45,12 +46,12 @@ export default function Vote({
       return;
     }
 
-    if (isSubmitting) {
-      return;
-    }
+    // if (isSubmitting) {
+    //   return;
+    // }
 
     setError("");
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
 
     try {
       const response = await fetch(`${api}/api/offers/${offerId}/votes`, {
@@ -70,92 +71,67 @@ export default function Vote({
 
       setVote(data);
       setSubmittedVote(data.vote);
+      setWorksCount(data.votes.works);
+      setExpiredCunt(data.votes.expired);
     } catch (error: unknown) {
       setError(
         error instanceof Error ? error.message : "Unable to make a vote",
       );
-    } finally {
-      setIsSubmitting(false);
     }
+    // finally {
+    //   setIsSubmitting(false);
+    // }
   }
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-4 border-t border-[#edf0eb] pt-4 lg:flex-row lg:items-center lg:justify-between">
-      {/* Community feedback */}
-      <div className="min-w-0 flex-1">
+    <div className="flex flex-col gap-3 border-t border-[#edf0eb] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
         <p className="text-sm font-semibold text-[#26332a]">
           Community feedback
         </p>
-
         <div className="mt-2 flex flex-wrap gap-2">
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#edf4eb] px-3 py-1.5 text-xs font-medium text-green-800">
-            <ThumbsUp
-              aria-hidden="true"
-              className="h-3.5 w-3.5 shrink-0"
-            />
+          <span
+            className={` ${worksCount > expiredCount ? " bg-[#edf4eb] text-green-800" : "bg-gray-200  text-[#68766c]"} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium `}
+          >
+            <ThumbsUp aria-hidden="true" className="h-3.5 w-3.5" />
             Actual
-            <span className="font-bold">
-              {vote?.votes.works ?? worksVotes}
-            </span>
+            <span>{worksCount}</span>
           </span>
 
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#f3f4f2] px-3 py-1.5 text-xs font-medium text-[#68766c]">
-            <ThumbsDown
-              aria-hidden="true"
-              className="h-3.5 w-3.5 shrink-0"
-            />
+          <span
+            className={` ${expiredCount > worksCount ? "bg-[#fbefed] text-[#9b3c32]" : "bg-gray-200 text-[#68766c]"} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium`}
+          >
+            <ThumbsDown aria-hidden="true" className="h-3.5 w-3.5" />
             Expired
-            <span className="font-bold">
-              {vote?.votes.expired ?? expiredVotes}
-            </span>
+            <span>{expiredCount}</span>
           </span>
         </div>
       </div>
 
-      {/* Voting controls */}
-      <div className="flex w-full min-w-0 flex-col gap-2 lg:w-auto lg:items-end">
-        {submittedVote ? (
-          <p
-            className="max-w-full self-start break-words rounded-xl bg-[#edf4eb] px-3 py-2 text-xs font-medium text-green-800 lg:self-end"
-            role="status"
+      <div className="flex flex-col items-start gap-2 sm:items-end">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            // disabled={isSubmitting}
+            className={` ${submittedVote === "works" ? "bg-[#edf4eb]" : "bg-white"} inline-flex items-center gap-2 rounded-xl border border-[#cfe3d0] px-3.5 py-2 text-sm font-semibold text-green-800 transition-colors hover:bg-[#edf4eb] disabled:cursor-wait disabled:opacity-60`}
+            onClick={() => void submitVote("works")}
           >
-            You voted: {submittedVote === "works" ? "Actual" : "Expired"}
-          </p>
-        ) : (
-          <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[360px]:grid-cols-2 lg:w-auto">
-            <button
-              type="button"
-              disabled={isSubmitting}
-              className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-[#cfe3d0] bg-white px-3 py-2.5 text-sm font-semibold text-green-800 transition-colors hover:bg-[#edf4eb] disabled:cursor-wait disabled:opacity-60"
-              onClick={() => void submitVote("works")}
-            >
-              <ThumbsUp
-                aria-hidden="true"
-                className="h-4 w-4 shrink-0"
-              />
-              <span>{isSubmitting ? "Sending…" : "Actual"}</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={isSubmitting}
-              className="inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-[#ead8d5] bg-white px-3 py-2.5 text-sm font-semibold text-[#9b3c32] transition-colors hover:bg-[#fbefed] disabled:cursor-wait disabled:opacity-60"
-              onClick={() => void submitVote("expired")}
-            >
-              <ThumbsDown
-                aria-hidden="true"
-                className="h-4 w-4 shrink-0"
-              />
-              <span>{isSubmitting ? "Sending…" : "Expired"}</span>
-            </button>
-          </div>
-        )}
+            <ThumbsUp aria-hidden="true" className="h-4 w-4" />
+            <p>Actual</p>
+          </button>
+          <button
+            type="button"
+            // disabled={isSubmitting}
+            className={` ${submittedVote === "expired" ? "bg-[#fbefed]" : "bg-white"} inline-flex items-center gap-2 rounded-xl border border-[#ead8d5] px-3.5 py-2 text-sm font-semibold text-[#9b3c32] transition-colors hover:bg-[#fbefed] disabled:cursor-wait disabled:opacity-60`}
+            onClick={() => void submitVote("expired")}
+          >
+            <ThumbsDown aria-hidden="true" className="h-4 w-4" />
+            <p>Expired</p>
+          </button>
+        </div>
 
         {error && (
-          <p
-            className="w-full min-w-0 break-words text-xs text-red-700 lg:max-w-xs"
-            role="alert"
-          >
+          <p className="text-xs text-red-700" role="alert">
             {error}
           </p>
         )}
