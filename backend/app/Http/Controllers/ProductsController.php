@@ -21,8 +21,6 @@ class ProductsController extends Controller
 
         $query = $validated['q'];
 
-        $words = array_filter(preg_split('/\s+/', trim($query)));
-
         $products = Product::query()
             ->select([
                 'id',
@@ -30,11 +28,9 @@ class ProductsController extends Controller
                 'category_id',
                 'unit',
             ])
-            ->where(function ($builder) use ($words) {
-                foreach ($words as $word) {
-                    $builder
-                        ->where('name', 'ilike', '%' . $word . '%');   
-                }
+            ->where(function ($builder) use ($query) {
+                $builder
+                    ->where('name', 'ilike', $query . '%');
             })
             ->orderBy('name')
             ->limit(10)
