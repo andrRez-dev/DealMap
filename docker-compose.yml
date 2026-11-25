@@ -99,10 +99,6 @@ services:
 
 volumes:
   postgres_data:
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of f552070 (Added favorites + few impovements)
 networks:
   dealmap-net:
     driver: bridge
